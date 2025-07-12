@@ -35,45 +35,45 @@ export default function UserDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-lime-50 flex flex-col relative overflow-hidden">
-      {/* Image de fond décorative */}
-      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" alt="Fond gourmand" className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm pointer-events-none select-none" style={{zIndex:0}} />
-      <div className="relative z-10">
-        <Navbar />
-        <section className="max-w-5xl mx-auto w-full py-12 px-4">
-        {/* Animated header */}
-        <motion.h1 initial={{opacity:0, y:40}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-4xl md:text-5xl font-extrabold text-orange-900 mb-4 mt-8 text-center">
-          Bienvenue sur ton espace gourmand 👋
-        </motion.h1>
-        <motion.p initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.7, delay:0.2}} className="text-lg text-orange-700 mb-10 text-center">
-          Explore des recettes du monde entier, choisis ta catégorie ou recherche un plat !
-        </motion.p>
-        {/* Animated catégories */}
-        <motion.div initial="hidden" animate="visible" variants={{hidden:{opacity:0, y:30}, visible:{opacity:1, y:0, transition:{staggerChildren:0.08}}}} className="flex flex-wrap gap-4 justify-center mb-8">
-          {categories.map((cat, i) => (
-            <motion.button
-              key={cat.key}
-              onClick={()=>setSelectedCat(cat.key)}
-              whileHover={{scale:1.08, boxShadow:"0 4px 24px 0 rgba(255, 140, 0, 0.12)"}}
-              whileTap={{scale:0.97}}
-              variants={{hidden:{opacity:0, y:30}, visible:{opacity:1, y:0}}}
-              className={`px-5 py-3 rounded-full font-semibold flex items-center gap-2 shadow transition border-2 text-lg ${selectedCat===cat.key ? 'bg-gradient-to-r from-orange-400 to-amber-400 text-white border-orange-400 scale-105' : 'bg-white/80 text-orange-900 border-orange-100 hover:bg-orange-50'}`}
-            >
-              <span>{cat.emoji}</span> {cat.label}
-            </motion.button>
-          ))}
-        </motion.div>
-        {/* Animated search */}
-        <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6, delay:0.3}} className="flex justify-center mb-10">
-          <motion.input
-            type="text"
-            placeholder="Rechercher une recette, un ingrédient..."
-            value={search}
-            onChange={e=>setSearch(e.target.value)}
-            whileFocus={{scale:1.03, boxShadow:"0 2px 16px 0 rgba(255, 140, 0, 0.10)"}}
-            className="w-full max-w-md px-5 py-4 rounded-xl border-2 border-orange-100 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white/70 text-lg text-orange-900 shadow transition"
-          />
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-lime-50 flex flex-col">
+      <Navbar />
+      <section className="max-w-5xl mx-auto w-full py-12 px-4">
+        {/* Bloc avec image de fond décorative uniquement derrière l'input et les catégories */}
+        <div className="relative rounded-3xl overflow-hidden mb-10">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" alt="Fond gourmand" className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm pointer-events-none select-none" style={{zIndex:0}} />
+          <div className="relative z-10 p-6">
+            <motion.h1 initial={{opacity:0, y:40}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-4xl md:text-5xl font-extrabold text-orange-900 mb-4 mt-2 text-center">
+              Bienvenue sur ton espace gourmand 👋
+            </motion.h1>
+            <motion.p initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.7, delay:0.2}} className="text-lg text-orange-700 mb-8 text-center">
+              Explore des recettes du monde entier, choisis ta catégorie ou recherche un plat !
+            </motion.p>
+            <motion.div initial="hidden" animate="visible" variants={{hidden:{opacity:0, y:30}, visible:{opacity:1, y:0, transition:{staggerChildren:0.08}}}} className="flex flex-wrap gap-4 justify-center mb-6">
+              {categories.map((cat, i) => (
+                <motion.button
+                  key={cat.key}
+                  onClick={()=>setSelectedCat(cat.key)}
+                  whileHover={{scale:1.08, boxShadow:"0 4px 24px 0 rgba(255, 140, 0, 0.12)"}}
+                  whileTap={{scale:0.97}}
+                  variants={{hidden:{opacity:0, y:30}, visible:{opacity:1, y:0}}}
+                  className={`px-5 py-3 rounded-full font-semibold flex items-center gap-2 shadow transition border-2 text-lg ${selectedCat===cat.key ? 'bg-gradient-to-r from-orange-400 to-amber-400 text-white border-orange-400 scale-105' : 'bg-white/80 text-orange-900 border-orange-100 hover:bg-orange-50'}`}
+                >
+                  <span>{cat.emoji}</span> {cat.label}
+                </motion.button>
+              ))}
+            </motion.div>
+            <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6, delay:0.3}} className="flex justify-center">
+              <motion.input
+                type="text"
+                placeholder="Rechercher une recette, un ingrédient..."
+                value={search}
+                onChange={e=>setSearch(e.target.value)}
+                whileFocus={{scale:1.03, boxShadow:"0 2px 16px 0 rgba(255, 140, 0, 0.10)"}}
+                className="w-full max-w-md px-5 py-4 rounded-xl border-2 border-orange-100 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white/70 text-lg text-orange-900 shadow transition"
+              />
+            </motion.div>
+          </div>
+        </div>
         {/* Animated recettes */}
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <AnimatePresence mode="wait">
