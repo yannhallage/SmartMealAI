@@ -41,7 +41,7 @@ const allRecipes = [
   { 
     name: "Quiche Lorraine", 
     category: "europe", 
-    img: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", 
+    img: "https://images.unsplash.com/photo-1650844010413-3f24dc1c182b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "La France dans votre assiette.", 
     time: "35 min", 
     ingredients: ["Pâte brisée", "Œufs", "Crème", "Lardons", "Fromage"],
@@ -63,7 +63,7 @@ const allRecipes = [
   { 
     name: "Mafé", 
     category: "africa", 
-    img: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=crop&w=400&q=80", 
+    img: "https://cdn.apartmenttherapy.info/image/upload/f_auto,q_auto:eco,c_fill,g_auto,w_728,h_546/k%2FPhoto%2FRecipes%2F2021-11-mafe%2F2021-11-03_ATK11087", 
     desc: "Ragoût africain à la cacahuète.", 
     time: "45 min", 
     ingredients: ["Viande", "Cacahuètes", "Tomates", "Oignons", "Riz"],
@@ -74,7 +74,7 @@ const allRecipes = [
   { 
     name: "Pad Thaï", 
     category: "asia", 
-    img: "https://images.unsplash.com/photo-1506089676908-3592f7389d4d?auto=format&fit=crop&w=400&q=80", 
+    img: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "Nouilles sautées thaïlandaises.", 
     time: "25 min", 
     ingredients: ["Nouilles de riz", "Œufs", "Tofu", "Crevettes", "Cacahuètes"],
@@ -85,7 +85,7 @@ const allRecipes = [
   { 
     name: "Sushi Bowl", 
     category: "asia", 
-    img: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", 
+    img: "https://images.unsplash.com/photo-1726824863833-e88146cf0a72?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "Version déstructurée du sushi.", 
     time: "15 min", 
     ingredients: ["Riz", "Saumon", "Avocat", "Concombre", "Algues"],
@@ -107,7 +107,7 @@ const allRecipes = [
   { 
     name: "Falafel Bowl", 
     category: "orient", 
-    img: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=crop&w=400&q=80", 
+    img: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "Boulettes veggie et houmous.", 
     time: "30 min", 
     ingredients: ["Pois chiches", "Persil", "Ail", "Pain pita", "Houmous"],
@@ -118,7 +118,7 @@ const allRecipes = [
   { 
     name: "Tacos Mexicains", 
     category: "americas", 
-    img: "https://images.unsplash.com/photo-1506089676908-3592f7389d4d?auto=format&fit=crop&w=400&q=80", 
+    img: "https://images.unsplash.com/photo-1613409385222-3d0decb6742a?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "Street food mexicaine.", 
     time: "20 min", 
     ingredients: ["Tortillas", "Bœuf haché", "Tomates", "Oignons", "Avocat"],
@@ -129,7 +129,7 @@ const allRecipes = [
   { 
     name: "Burger Maison", 
     category: "americas", 
-    img: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", 
+    img: "https://plus.unsplash.com/premium_photo-1706540480687-605f201603fd?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     desc: "Le classique US revisité.", 
     time: "25 min", 
     ingredients: ["Pain burger", "Steak haché", "Fromage", "Salade", "Tomates"],
@@ -330,13 +330,26 @@ export default function UserDashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-black mb-4">
-            Bienvenue sur votre espace gourmand 👋
-          </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Créez des repas personnalisés en tenant compte de vos ingrédients, préférences santé et allergies !
-          </p>
+        <div className="relative w-full mb-12 animate-fadeInUp">
+          <motion.img
+            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
+            alt="Cuisine conviviale"
+            className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-lg"
+            style={{ filter: 'brightness(0.7) blur(0px)' }}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+            <div className="bg-white/70 backdrop-blur-md rounded-xl p-6 md:p-10 shadow-xl max-w-2xl mx-auto">
+              <h1 className="text-3xl md:text-4xl font-bold text-black mb-4 drop-shadow-lg">
+                Bienvenue sur votre espace gourmand 👋
+              </h1>
+              <p className="text-gray-700 text-lg md:text-xl font-medium">
+                Créez des repas personnalisés en tenant compte de vos ingrédients, préférences santé et allergies !
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Smart Search */}
