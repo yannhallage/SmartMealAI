@@ -21,7 +21,7 @@ SmartMealAI est une application web moderne qui génère des idées de repas per
 
 <p align="center">
   <!-- Insérer ici l'image des logos technos -->
-  <img src="./docs/technos.png" alt="Technologies utilisées" width="600"/>
+  <img src="./docs/technologie.png" alt="Technologies utilisées" width="600"/>
 </p>
 
 ---
