@@ -1,32 +1,31 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar";
-import Register from "./components/Register";
 
 const features = [
   {
-    icon: "🍊",
+    icon: "🤖",
     title: "Suggestions IA instantanées",
-    desc: "Recevez des idées de repas adaptées à vos ingrédients, générées par une intelligence artificielle culinaire de pointe.",
-    gradient: "from-orange-200 via-orange-100 to-amber-100",
+    desc: "Des idées de repas personnalisées selon tes ingrédients, générées par une IA culinaire avancée.",
+    color: "from-orange-200 via-orange-100 to-amber-100",
   },
   {
     icon: "🥕",
-    title: "Anti-gaspi & malin",
-    desc: "Valorisez vos restes et réduisez le gaspillage alimentaire en cuisinant intelligemment.",
-    gradient: "from-lime-100 via-amber-100 to-orange-100",
+    title: "Anti-gaspi malin",
+    desc: "Valorise tes restes et réduis le gaspillage alimentaire en cuisinant intelligemment.",
+    color: "from-lime-100 via-amber-100 to-orange-100",
   },
   {
-    icon: "🥗",
-    title: "Interface ultra-intuitive",
-    desc: "Une expérience fluide, rapide et agréable, pensée pour tous les gourmets connectés.",
-    gradient: "from-amber-100 via-orange-100 to-lime-100",
-  },
-  {
-    icon: "👨‍🍳",
+    icon: "🍽️",
     title: "Recettes créatives",
-    desc: "Découvrez des plats originaux, équilibrés et savoureux, même avec peu d’ingrédients.",
-    gradient: "from-orange-100 via-lime-100 to-amber-100",
+    desc: "Découvre des plats originaux, équilibrés et savoureux, même avec peu d’ingrédients.",
+    color: "from-orange-100 via-lime-100 to-amber-100",
+  },
+  {
+    icon: "⚡",
+    title: "Ultra rapide & intuitif",
+    desc: "Une expérience fluide, moderne et agréable, pensée pour tous les gourmets connectés.",
+    color: "from-amber-100 via-orange-100 to-lime-100",
   },
 ];
 
@@ -34,36 +33,17 @@ const steps = [
   {
     icon: "🧺",
     title: "Je choisis mes ingrédients",
-    desc: "Sélectionnez ce que vous avez dans votre frigo ou vos placards.",
+    desc: "Sélectionne ce que tu as dans ton frigo ou placard.",
   },
   {
     icon: "🤖",
     title: "L’IA imagine des recettes",
-    desc: "Notre moteur intelligent analyse et propose des plats adaptés.",
+    desc: "Notre moteur intelligent propose des plats adaptés.",
   },
   {
     icon: "🍽️",
     title: "Je cuisine et je me régale !",
-    desc: "Suivez la recette, dégustez, partagez et réduisez le gaspillage.",
-  },
-];
-
-const faqs = [
-  {
-    q: "SmartMealAI est-il gratuit ?",
-    a: "Oui, l’application est 100% gratuite pour tous les utilisateurs.",
-  },
-  {
-    q: "Dois-je créer un compte ?",
-    a: "Non, aucune inscription n’est requise pour générer des suggestions de repas.",
-  },
-  {
-    q: "Comment l’IA choisit-elle les recettes ?",
-    a: "L’IA analyse vos ingrédients et propose des plats équilibrés, variés et anti-gaspi.",
-  },
-  {
-    q: "Mes données sont-elles privées ?",
-    a: "Oui, vos ingrédients ne sont jamais stockés ni partagés.",
+    desc: "Suis la recette, déguste, partage et réduis le gaspillage.",
   },
 ];
 
@@ -92,268 +72,179 @@ const testimonials = [
     avatar: "https://randomuser.me/api/portraits/men/45.jpg",
     text: "L'IA m'a aidé à cuisiner avec ce qu'il me restait. Résultat : un plat délicieux et zéro déchet !",
   },
-  {
-    name: "Lina",
-    username: "@lina.saveurs",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-    text: "Des recettes originales, rapides et anti-gaspi. Je recommande à tous les étudiants !",
-  },
-  {
-    name: "Marc",
-    username: "@marc_cuisine",
-    avatar: "https://randomuser.me/api/portraits/men/36.jpg",
-    text: "Interface moderne, recettes variées, et surtout : plus de gaspillage à la maison !",
-  },
 ];
 
 const recipes = [
   {
-    name: "Fresh and Healthy Salad",
+    name: "Salade fraîcheur vitaminée",
     img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
     calories: 60,
-    time: "5 mins",
-    portion: "3 persons",
+    time: "5 min",
+    portion: "3 pers.",
   },
   {
-    name: "Delicious Spicy Beef Noodles",
+    name: "Noodles boeuf épicé",
     img: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
     calories: 150,
-    time: "18 mins",
-    portion: "2 persons",
+    time: "18 min",
+    portion: "2 pers.",
   },
   {
-    name: "Red Hot BBQ Chicken Wings",
+    name: "Wings BBQ maison",
     img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80",
     calories: 120,
-    time: "45 mins",
-    portion: "3 persons",
+    time: "45 min",
+    portion: "3 pers.",
   },
   {
-    name: "Healthy Fruit Smoothie",
+    name: "Smoothie fruité santé",
     img: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=crop&w=400&q=80",
     calories: 110,
-    time: "12 mins",
-    portion: "3 persons",
+    time: "12 min",
+    portion: "3 pers.",
   },
   {
-    name: "Red Curry Chicken",
+    name: "Curry rouge poulet",
     img: "https://images.unsplash.com/photo-1506089676908-3592f7389d4d?auto=format&fit=crop&w=400&q=80",
     calories: 180,
-    time: "30 mins",
-    portion: "2 persons",
+    time: "30 min",
+    portion: "2 pers.",
   },
 ];
 
-export default function Home() {
-  const [openFaq, setOpenFaq] = useState(null);
-  const [showRegister, setShowRegister] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
+function getRandomRecipe() {
+  return recipes[Math.floor(Math.random() * recipes.length)];
+}
 
-  const handleLoginClick = () => setShowRegister(true);
-  const handleLogoutClick = () => setIsAuth(false);
-  const handleRegisterClose = () => setShowRegister(false);
-  const handleRegisterSuccess = () => {
-    setShowRegister(false);
-    setIsAuth(true);
-  };
+export default function Home() {
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const platDuJour = getRandomRecipe();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-lime-50 flex flex-col">
-      {/* Navbar sticky */}
-      <Navbar
-        isAuth={isAuth}
-        onLoginClick={handleLoginClick}
-        onLogoutClick={handleLogoutClick}
-      />
-      {showRegister && (
-        <Register onClose={handleRegisterClose} />
-      )}
-
-      {/* Hero section avec image de fond */}
-      <section className="relative flex flex-col items-center justify-center text-center py-24 px-4 pt-32 overflow-hidden">
-        {/* Image de fond floutée */}
-        <img
-          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
-          alt="Cuisine fond"
-          className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm pointer-events-none select-none"
-          style={{zIndex: 0}}
-        />
-        <div className="relative z-10 flex flex-col items-center">
-          <span className="inline-flex items-center px-4 py-1 mb-6 rounded-full bg-gradient-to-r from-orange-300 to-lime-200 text-orange-900 text-sm font-semibold shadow-lg">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mr-2"><circle cx="10" cy="10" r="10" fill="#fff" fillOpacity=".15"/><path d="M10 4l2.09 6.26H18l-5.18 3.76L14.18 18 10 14.24 5.82 18l1.36-3.98L2 10.26h5.91z" fill="#fff"/></svg>
-            SmartMealAI 2025
-          </span>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-orange-900 mb-6 tracking-tight drop-shadow-lg">
-            L’IA qui sublime vos restes
-          </h1>
-          <p className="text-xl md:text-2xl text-orange-700 max-w-2xl mb-10">
-            Saisissez vos ingrédients, laissez l’intelligence artificielle vous inspirer et découvrez des plats savoureux, anti-gaspi et créatifs.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#features"
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-orange-300 via-orange-400 to-amber-300 text-white font-bold text-lg shadow-lg hover:scale-105 transition"
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-lime-50 flex flex-col relative overflow-hidden">
+      {/* Image de fond décorative */}
+      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" alt="Fond gourmand" className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm pointer-events-none select-none" style={{zIndex:0}} />
+      <div className="relative z-10">
+        <Navbar />
+        {/* HERO */}
+        <section className="relative flex flex-col items-center justify-center text-center py-28 px-4 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-200/40 via-white/10 to-lime-100/40 blur-2xl" />
+          <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto">
+            <motion.h1 initial={{opacity:0, y:40}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-5xl md:text-6xl font-extrabold text-orange-900 mb-6 tracking-tight drop-shadow-lg">
+              L’IA qui sublime tes restes
+            </motion.h1>
+            <motion.p initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.7, delay:0.2}} className="text-xl md:text-2xl text-orange-700 max-w-xl mb-8">
+              Saisis tes ingrédients, laisse l’IA t’inspirer et découvre des plats savoureux, anti-gaspi et créatifs.
+            </motion.p>
+            <motion.a
+              href="#plat-du-jour"
+              whileHover={{scale:1.05}}
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400 text-white font-bold text-lg shadow-lg hover:scale-105 transition mb-2"
             >
-              Commencer
-            </a>
-            <a
-              href="https://github.com/SmartMealAI"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 rounded-2xl border border-orange-200 text-orange-900 font-bold text-lg shadow-lg hover:bg-orange-100 transition"
-            >
-              GitHub
-            </a>
+              Découvrir le plat du jour
+            </motion.a>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Recettes inspirantes */}
-      <section className="relative w-full max-w-6xl mx-auto py-16 px-4 flex flex-col items-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="text-5xl font-extrabold text-orange-900 mb-4 tracking-tight text-center font-serif"
-        >
-          Des idées simples et gourmandes
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-          className="text-lg text-orange-700 mb-6 text-center max-w-2xl"
-        >
-          Découvrez des recettes générées par <span className="font-semibold text-orange-500">SmartMealAI</span> pour vous inspirer au quotidien.
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-          className="flex items-center gap-2 mb-10"
-        >
-          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Samantha William" className="w-8 h-8 rounded-full border-2 border-orange-300" />
-          <span className="text-orange-900 font-medium">par Samantha William</span>
-        </motion.div>
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-          {recipes.map((r, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 + i * 0.15, ease: "easeOut" }}
-              whileHover={{ scale: 1.06, boxShadow: "0 8px 32px 0 rgba(255, 140, 0, 0.15)" }}
-              className="bg-white/90 rounded-2xl shadow-lg flex flex-col items-center p-6 border border-orange-100 hover:shadow-xl transition"
-            >
-              <img src={r.img} alt={r.name} className="w-24 h-24 rounded-full object-cover border-4 border-orange-200 mb-4 shadow" />
-              <div className="text-lg font-bold text-orange-900 mb-1 text-center">{r.name}</div>
-              <div className="text-orange-500 text-sm mb-2">{r.calories} calories</div>
-              <div className="flex justify-center gap-4 text-xs text-orange-700">
-                <span>Time <span className="font-semibold">{r.time}</span></span>
-                <span>Portion <span className="font-semibold">{r.portion}</span></span>
+        {/* PLAT DU JOUR */}
+        <section id="plat-du-jour" className="w-full flex flex-col items-center py-12 px-4">
+          <motion.div initial={{opacity:0, y:30}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-orange-100 p-8 flex flex-col md:flex-row items-center gap-8 max-w-3xl w-full">
+            <img src={platDuJour.img} alt={platDuJour.name} className="w-40 h-40 rounded-full object-cover border-4 border-orange-200 shadow-lg" />
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-3xl font-bold text-orange-900 mb-2">{platDuJour.name}</h2>
+              <div className="flex gap-4 justify-center md:justify-start mb-2">
+                <span className="bg-orange-100 text-orange-700 rounded-full px-3 py-1 text-sm font-semibold">{platDuJour.calories} kcal</span>
+                <span className="bg-lime-100 text-lime-700 rounded-full px-3 py-1 text-sm font-semibold">{platDuJour.time}</span>
+                <span className="bg-amber-100 text-amber-700 rounded-full px-3 py-1 text-sm font-semibold">{platDuJour.portion}</span>
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Features section */}
-      <section id="features" className="w-full max-w-6xl mx-auto py-16 px-4">
-        <h2 className="text-3xl font-bold text-orange-900 mb-10 text-center">Fonctionnalités</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className={`relative rounded-2xl p-1 shadow-xl group hover:scale-105 transition bg-gradient-to-br ${f.gradient}`}
-            >
-              <div className="bg-white/90 rounded-2xl p-6 h-full flex flex-col items-center gap-2 group-hover:bg-white/80 transition">
-                <div className="text-3xl mb-2">{f.icon}</div>
-                <h3 className="text-lg font-bold text-orange-900 mb-1">{f.title}</h3>
-                <p className="text-orange-700 text-sm text-center">{f.desc}</p>
-              </div>
+              <p className="text-orange-700 mt-2">Une suggestion IA rien que pour toi aujourd’hui !</p>
             </div>
-          ))}
-        </div>
-      </section>
+          </motion.div>
+        </section>
 
-      {/* How it works section */}
-      <section id="how" className="w-full max-w-5xl mx-auto py-16 px-4">
-        <h2 className="text-3xl font-bold text-orange-900 mb-10 text-center">Comment ça marche ?</h2>
-        <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
-          {steps.map((s, i) => (
-            <div key={i} className="flex flex-col items-center text-center gap-2 flex-1 min-w-[200px]">
-              <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-300 via-lime-200 to-amber-200 text-3xl font-bold shadow-lg mb-2">
-                {s.icon}
-              </div>
-              <div className="text-lg font-bold text-orange-900">{s.title}</div>
-              <div className="text-orange-700 text-sm">{s.desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ section */}
-      <section id="faq" className="w-full max-w-3xl mx-auto py-16 px-4">
-        <h2 className="text-3xl font-bold text-orange-900 mb-10 text-center">FAQ</h2>
-        <div className="flex flex-col gap-4">
-          {faqs.map((faq, i) => (
-            <div key={i} className="rounded-xl border border-orange-200 bg-white/80">
-              <button
-                className="w-full flex justify-between items-center px-6 py-4 text-left text-orange-900 font-semibold focus:outline-none"
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+        {/* FEATURES */}
+        <section className="w-full max-w-6xl mx-auto py-16 px-4" id="features">
+          <motion.h2 initial={{opacity:0, y:30}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-4xl font-extrabold text-orange-900 mb-10 text-center font-serif">
+            Pourquoi SmartMealAI ?
+          </motion.h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{opacity:0, y:40}}
+                animate={{opacity:1, y:0}}
+                transition={{duration:0.6, delay:0.2 + i*0.1}}
+                whileHover={{scale:1.05, boxShadow:"0 8px 32px 0 rgba(255, 140, 0, 0.15)"}}
+                className={`rounded-2xl p-8 shadow-lg bg-gradient-to-br ${f.color} flex flex-col items-center text-center`}
               >
-                <span>{faq.q}</span>
-                <span className="ml-4 text-orange-400">{openFaq === i ? "-" : "+"}</span>
-              </button>
-              {openFaq === i && (
-                <div className="px-6 pb-4 text-orange-700 text-sm animate-fade-in">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+                <span className="text-4xl mb-4">{f.icon}</span>
+                <h3 className="text-xl font-bold text-orange-900 mb-2">{f.title}</h3>
+                <p className="text-orange-700">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
-      {/* Testimonials section */}
-      <section id="testimonials" className="w-full max-w-6xl mx-auto py-16 px-4">
-        <h2 className="text-3xl font-bold text-orange-900 mb-10 text-center">Ils ont testé SmartMealAI</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="bg-white/90 border border-orange-200 rounded-2xl shadow-lg p-6 flex flex-col gap-4 hover:scale-[1.03] transition duration-200"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full border-2 border-orange-300 shadow" />
+        {/* TIMELINE - COMMENT CA MARCHE */}
+        <section className="w-full max-w-4xl mx-auto py-16 px-4">
+          <motion.h2 initial={{opacity:0, y:30}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-4xl font-extrabold text-orange-900 mb-10 text-center font-serif">
+            Comment ça marche ?
+          </motion.h2>
+          <div className="relative flex flex-col gap-12">
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{opacity:0, y:40}}
+                animate={{opacity:1, y:0}}
+                transition={{duration:0.6, delay:0.2 + i*0.1}}
+                className="flex items-center gap-6"
+              >
+                <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-orange-200 to-amber-200 flex items-center justify-center text-3xl shadow-lg">
+                  {step.icon}
+                </div>
                 <div>
-                  <div className="text-orange-900 font-semibold leading-tight">{t.name}</div>
-                  <div className="text-orange-500 text-sm">{t.username}</div>
+                  <h4 className="text-xl font-bold text-orange-900 mb-1">{step.title}</h4>
+                  <p className="text-orange-700">{step.desc}</p>
                 </div>
-              </div>
-              <p className="text-orange-700 text-base">{t.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
-      {/* Footer */}
-      <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-2 px-8 py-6 border-t border-orange-200 bg-orange-50/80 text-orange-700 text-xs mt-8">
-        <div>
-          <a
-            href="https://github.com/SmartMealAI"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline hover:text-orange-500"
-          >
-            GitHub
-          </a>
-        </div>
-        <div>Contact : contact@smartmealai.app</div>
-        <div>
-          <a href="#" className="hover:underline hover:text-orange-500">Mentions légales</a>
-        </div>
-      </footer>
+        {/* TESTIMONIALS CAROUSEL */}
+        <section className="w-full max-w-3xl mx-auto py-16 px-4">
+          <motion.h2 initial={{opacity:0, y:30}} animate={{opacity:1, y:0}} transition={{duration:0.7}} className="text-4xl font-extrabold text-orange-900 mb-10 text-center font-serif">
+            Ils ont testé SmartMealAI
+          </motion.h2>
+          <div className="relative flex flex-col items-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={testimonialIdx}
+                initial={{opacity:0, y:30}}
+                animate={{opacity:1, y:0}}
+                exit={{opacity:0, y:-30}}
+                transition={{duration:0.5}}
+                className="bg-white/90 rounded-2xl shadow-lg p-8 flex flex-col items-center text-center max-w-xl mx-auto"
+              >
+                <img src={testimonials[testimonialIdx].avatar} alt={testimonials[testimonialIdx].name} className="w-20 h-20 rounded-full object-cover border-4 border-orange-200 mb-4 shadow" />
+                <div className="text-lg font-bold text-orange-900 mb-1">{testimonials[testimonialIdx].name}</div>
+                <div className="text-orange-500 text-sm mb-2">{testimonials[testimonialIdx].username}</div>
+                <p className="text-orange-700 mb-4">{testimonials[testimonialIdx].text}</p>
+              </motion.div>
+            </AnimatePresence>
+            <div className="flex gap-4 mt-6">
+              <button onClick={()=>setTestimonialIdx((testimonialIdx-1+testimonials.length)%testimonials.length)} className="w-10 h-10 rounded-full bg-orange-100 text-orange-700 font-bold text-xl flex items-center justify-center shadow hover:bg-orange-200 transition">‹</button>
+              <button onClick={()=>setTestimonialIdx((testimonialIdx+1)%testimonials.length)} className="w-10 h-10 rounded-full bg-orange-100 text-orange-700 font-bold text-xl flex items-center justify-center shadow hover:bg-orange-200 transition">›</button>
+            </div>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="w-full py-8 bg-gradient-to-r from-orange-100 via-white to-lime-100 text-center text-orange-900 font-semibold mt-auto shadow-inner">
+          <div>SmartMealAI © {new Date().getFullYear()} — Créé avec ❤️ pour la food et l’IA</div>
+          <div className="text-sm text-orange-500 mt-2">UI inspirée par Cursor, ViteJS, shadcn/ui</div>
+        </footer>
+      </div>
     </div>
   );
 } 
