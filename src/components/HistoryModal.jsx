@@ -17,7 +17,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
     {
       id: 2,
       name: "Poulet Yassa",
-      image: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80",
+      image: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024",
       description: "Spécialité sénégalaise acidulée avec du poulet mariné. Recette générée le 14/12/2024.",
       date: "14/12/2024",
       ingredients: ["Poulet", "Oignons", "Citron", "Huile"],
@@ -27,7 +27,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
     {
       id: 3,
       name: "Pad Thaï",
-      image: "https://images.unsplash.com/photo-1506089676908-3592f7389d4d?auto=format&fit=crop&w=400&q=80",
+      image: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       description: "Nouilles sautées thaïlandaises avec crevettes et cacahuètes. Recette générée le 13/12/2024.",
       date: "13/12/2024",
       ingredients: ["Nouilles de riz", "Crevettes", "Tofu", "Cacahuètes"],
@@ -37,7 +37,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
     {
       id: 4,
       name: "Falafel Bowl",
-      image: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=crop&w=400&q=80",
+      image: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       description: "Boulettes veggie et houmous dans un bowl healthy. Recette générée le 12/12/2024.",
       date: "12/12/2024",
       ingredients: ["Pois chiches", "Persil", "Ail", "Houmous"],

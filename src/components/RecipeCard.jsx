@@ -13,7 +13,7 @@ const healthCriteria = [
   { key: "low_sodium", label: "Faible en sodium", emoji: "🧂" },
 ];
 
-const RecipeCard = ({ recipe, index }) => {
+const RecipeCard = ({ recipe, index, onVoirRecette }) => {
   return (
     <div
       className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
@@ -30,7 +30,6 @@ const RecipeCard = ({ recipe, index }) => {
       <div className="space-y-3">
         <h3 className="font-semibold text-black text-lg">{recipe.name}</h3>
         <p className="text-gray-600 text-sm">{recipe.desc}</p>
-        
         {/* Critères de santé */}
         {recipe.health && recipe.health.length > 0 && (
           <div className="flex flex-wrap gap-1">
@@ -44,7 +43,6 @@ const RecipeCard = ({ recipe, index }) => {
             })}
           </div>
         )}
-
         {/* Allergènes */}
         {recipe.allergens && recipe.allergens.length > 0 && (
           <div className="flex flex-wrap gap-1">
@@ -55,7 +53,6 @@ const RecipeCard = ({ recipe, index }) => {
             ))}
           </div>
         )}
-
         {/* Nutrition */}
         {recipe.nutrition && (
           <div className="bg-gray-50 rounded-md p-2">
@@ -76,12 +73,14 @@ const RecipeCard = ({ recipe, index }) => {
             </div>
           </div>
         )}
-
         <div className="flex items-center justify-between">
           <span className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium">
             {recipe.time}
           </span>
-          <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
+          <button 
+            onClick={onVoirRecette}
+            className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
             Voir la recette
           </button>
         </div>

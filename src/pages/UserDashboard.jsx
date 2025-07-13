@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { logoutUser } from "../api/auth";
+import { useAuth } from "../hooks/useAuth.jsx";
 import HistoryModal from "../components/HistoryModal";
 import ModeSelector from "../components/ModeSelector";
 import CuisineStyleSelector from "../components/CuisineStyleSelector";
@@ -14,6 +16,7 @@ import RecipeStats from "../components/RecipeStats";
 import SmartSearch from "../components/SmartSearch";
 import CookingTimer from "../components/CookingTimer";
 import { AnimatePresence } from "framer-motion";
+import RecipeModal from "../components/RecipeModal";
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -26,134 +29,135 @@ const LoadingSpinner = () => (
   </div>
 );
 
+
 const allRecipes = [
-  { 
-    name: "Pâtes Carbonara", 
-    category: "europe", 
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", 
-    desc: "Un classique italien crémeux.", 
-    time: "20 min", 
+  {
+    name: "Pâtes Carbonara",
+    category: "europe",
+    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+    desc: "Un classique italien crémeux.",
+    time: "20 min",
     ingredients: ["Pâtes", "Œufs", "Fromage", "Lardons", "Poivre noir"],
     health: ["high_protein"],
     allergens: ["gluten", "lactose", "œufs"],
     nutrition: { calories: 450, protein: 25, carbs: 35, fat: 22 }
   },
-  { 
-    name: "Quiche Lorraine", 
-    category: "europe", 
-    img: "https://images.unsplash.com/photo-1650844010413-3f24dc1c182b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "La France dans votre assiette.", 
-    time: "35 min", 
+  {
+    name: "Quiche Lorraine",
+    category: "europe",
+    img: "https://images.unsplash.com/photo-1650844010413-3f24dc1c182b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "La France dans votre assiette.",
+    time: "35 min",
     ingredients: ["Pâte brisée", "Œufs", "Crème", "Lardons", "Fromage"],
     health: ["high_protein"],
     allergens: ["gluten", "lactose", "œufs"],
     nutrition: { calories: 380, protein: 18, carbs: 28, fat: 24 }
   },
-  { 
-    name: "Poulet Yassa", 
-    category: "africa", 
-    img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80", 
-    desc: "Spécialité sénégalaise acidulée.", 
-    time: "50 min", 
+  {
+    name: "Poulet Yassa",
+    category: "africa",
+    img: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024",
+    desc: "Spécialité sénégalaise acidulée.",
+    time: "50 min",
     ingredients: ["Poulet", "Oignons", "Citron", "Huile", "Épices"],
     health: ["high_protein", "low_carb"],
     allergens: [],
     nutrition: { calories: 320, protein: 35, carbs: 8, fat: 18 }
   },
-  { 
-    name: "Mafé", 
-    category: "africa", 
-    img: "https://cdn.apartmenttherapy.info/image/upload/f_auto,q_auto:eco,c_fill,g_auto,w_728,h_546/k%2FPhoto%2FRecipes%2F2021-11-mafe%2F2021-11-03_ATK11087", 
-    desc: "Ragoût africain à la cacahuète.", 
-    time: "45 min", 
+  {
+    name: "Mafé",
+    category: "africa",
+    img: "https://cdn.apartmenttherapy.info/image/upload/f_auto,q_auto:eco,c_fill,g_auto,w_728,h_546/k%2FPhoto%2FRecipes%2F2021-11-mafe%2F2021-11-03_ATK11087",
+    desc: "Ragoût africain à la cacahuète.",
+    time: "45 min",
     ingredients: ["Viande", "Cacahuètes", "Tomates", "Oignons", "Riz"],
     health: ["high_protein"],
     allergens: ["arachides"],
     nutrition: { calories: 420, protein: 28, carbs: 32, fat: 26 }
   },
-  { 
-    name: "Pad Thaï", 
-    category: "asia", 
-    img: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "Nouilles sautées thaïlandaises.", 
-    time: "25 min", 
+  {
+    name: "Pad Thaï",
+    category: "asia",
+    img: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "Nouilles sautées thaïlandaises.",
+    time: "25 min",
     ingredients: ["Nouilles de riz", "Œufs", "Tofu", "Crevettes", "Cacahuètes"],
     health: ["high_protein"],
     allergens: ["gluten", "œufs", "crustacés", "arachides", "soja"],
     nutrition: { calories: 380, protein: 22, carbs: 45, fat: 16 }
   },
-  { 
-    name: "Sushi Bowl", 
-    category: "asia", 
-    img: "https://images.unsplash.com/photo-1726824863833-e88146cf0a72?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "Version déstructurée du sushi.", 
-    time: "15 min", 
+  {
+    name: "Sushi Bowl",
+    category: "asia",
+    img: "https://images.unsplash.com/photo-1726824863833-e88146cf0a72?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "Version déstructurée du sushi.",
+    time: "15 min",
     ingredients: ["Riz", "Saumon", "Avocat", "Concombre", "Algues"],
     health: ["high_protein", "heart_healthy"],
     allergens: ["poisson"],
     nutrition: { calories: 340, protein: 24, carbs: 38, fat: 14 }
   },
-  { 
-    name: "Tajine d'agneau", 
-    category: "orient", 
-    img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80", 
-    desc: "Saveurs du Maghreb.", 
-    time: "1h30", 
+  {
+    name: "Tajine d'agneau",
+    category: "orient",
+    img: "https://kissmychef.com/wp-content/uploads/2024/10/tajine.png",
+    desc: "Saveurs du Maghreb.",
+    time: "1h30",
     ingredients: ["Agneau", "Pruneaux", "Amandes", "Épices", "Couscous"],
     health: ["high_protein"],
     allergens: ["gluten", "noix"],
     nutrition: { calories: 480, protein: 32, carbs: 42, fat: 28 }
   },
-  { 
-    name: "Falafel Bowl", 
-    category: "orient", 
-    img: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "Boulettes veggie et houmous.", 
-    time: "30 min", 
+  {
+    name: "Falafel Bowl",
+    category: "orient",
+    img: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "Boulettes veggie et houmous.",
+    time: "30 min",
     ingredients: ["Pois chiches", "Persil", "Ail", "Pain pita", "Houmous"],
     health: ["vegetarian", "vegan", "high_protein"],
     allergens: ["gluten", "sésame"],
     nutrition: { calories: 320, protein: 18, carbs: 45, fat: 12 }
   },
-  { 
-    name: "Tacos Mexicains", 
-    category: "americas", 
-    img: "https://images.unsplash.com/photo-1613409385222-3d0decb6742a?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "Street food mexicaine.", 
-    time: "20 min", 
+  {
+    name: "Tacos Mexicains",
+    category: "americas",
+    img: "https://images.unsplash.com/photo-1613409385222-3d0decb6742a?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "Street food mexicaine.",
+    time: "20 min",
     ingredients: ["Tortillas", "Bœuf haché", "Tomates", "Oignons", "Avocat"],
     health: ["high_protein"],
     allergens: ["gluten"],
     nutrition: { calories: 360, protein: 26, carbs: 32, fat: 18 }
   },
-  { 
-    name: "Burger Maison", 
-    category: "americas", 
-    img: "https://plus.unsplash.com/premium_photo-1706540480687-605f201603fd?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    desc: "Le classique US revisité.", 
-    time: "25 min", 
+  {
+    name: "Burger Maison",
+    category: "americas",
+    img: "https://plus.unsplash.com/premium_photo-1706540480687-605f201603fd?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    desc: "Le classique US revisité.",
+    time: "25 min",
     ingredients: ["Pain burger", "Steak haché", "Fromage", "Salade", "Tomates"],
     health: ["high_protein"],
     allergens: ["gluten", "lactose"],
     nutrition: { calories: 520, protein: 32, carbs: 28, fat: 34 }
   },
-  { 
-    name: "Poké Bowl", 
-    category: "world", 
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", 
-    desc: "Fusion healthy du monde.", 
-    time: "18 min", 
+  {
+    name: "Poké Bowl",
+    category: "world",
+    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+    desc: "Fusion healthy du monde.",
+    time: "18 min",
     ingredients: ["Riz", "Saumon", "Avocat", "Mangue", "Sauce soja"],
     health: ["high_protein", "heart_healthy"],
     allergens: ["poisson", "soja"],
     nutrition: { calories: 380, protein: 26, carbs: 42, fat: 16 }
   },
-  { 
-    name: "Salade Quinoa", 
-    category: "world", 
-    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80", 
-    desc: "Salade healthy et protéinée.", 
-    time: "15 min", 
+  {
+    name: "Salade Quinoa",
+    category: "world",
+    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
+    desc: "Salade healthy et protéinée.",
+    time: "15 min",
     ingredients: ["Quinoa", "Légumes", "Noix", "Vinaigrette", "Herbes"],
     health: ["vegetarian", "vegan", "gluten_free", "high_protein"],
     allergens: ["noix"],
@@ -164,6 +168,7 @@ const allRecipes = [
 export default function UserDashboard() {
   const [selectedCat, setSelectedCat] = useState("world");
   const [search, setSearch] = useState("");
+  const [nomComplet, setNomComplet] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [recipes, setRecipes] = useState([]);
   const [mode, setMode] = useState("style");
@@ -176,6 +181,10 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("recipes");
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [searchFilters, setSearchFilters] = useState({});
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
 
   // Simulate loading
   useEffect(() => {
@@ -186,6 +195,16 @@ export default function UserDashboard() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Récupérer le nom_complet depuis localStorage (fallback)
+  useEffect(() => {
+    if (!user?.nom_complet) {
+      const nomComplet = localStorage.getItem('nom_complet');
+      if (nomComplet) {
+        setNomComplet(nomComplet);
+      }
+    }
+  }, [user?.nom_complet]);
 
   // Simulate loading when changing category or search
   useEffect(() => {
@@ -218,18 +237,18 @@ export default function UserDashboard() {
       setIsLoading(true);
       setTimeout(() => {
         let matchingRecipes = allRecipes.filter(recipe => {
-          const hasIngredients = recipe.ingredients.some(ingredient => 
-            selectedIngredients.some(selected => 
+          const hasIngredients = recipe.ingredients.some(ingredient =>
+            selectedIngredients.some(selected =>
               ingredient.toLowerCase().includes(selected.toLowerCase())
             )
           );
 
-          const meetsHealthCriteria = selectedHealthCriteria.length === 0 || 
+          const meetsHealthCriteria = selectedHealthCriteria.length === 0 ||
             selectedHealthCriteria.some(criteria => recipe.health.includes(criteria));
 
-          const isAllergySafe = selectedAllergies.length === 0 || 
-            !selectedAllergies.some(allergy => 
-              recipe.allergens.some(allergen => 
+          const isAllergySafe = selectedAllergies.length === 0 ||
+            !selectedAllergies.some(allergy =>
+              recipe.allergens.some(allergen =>
                 allergen.toLowerCase().includes(allergy.toLowerCase())
               )
             );
@@ -268,13 +287,26 @@ export default function UserDashboard() {
     { id: "timer", label: "⏱️ Minuteur", icon: "⏱️" }
   ];
 
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      logout(); // Mettre à jour le contexte d'authentification
+      navigate("/"); // Rediriger vers la page d'accueil
+    } catch (error) {
+      console.error("Erreur de déconnexion:", error);
+      // Même en cas d'erreur, on déconnecte localement
+      logout();
+      navigate("/");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-peach-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center space-x-3 cursor-pointer"
@@ -299,14 +331,17 @@ export default function UserDashboard() {
               <Link to="/" className="text-gray-700 hover:text-sage-600 transition-colors font-medium">
                 Accueil
               </Link>
-              <button 
+              <button
                 onClick={() => setIsHistoryModalOpen(true)}
                 className="text-gray-700 hover:text-sage-600 transition-colors font-medium flex items-center space-x-2"
               >
                 <span>📚</span>
                 <span>Historique</span>
               </button>
-              <button className="text-gray-700 hover:text-sage-600 transition-colors font-medium">
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 hover:text-sage-600 transition-colors font-medium"
+              >
                 Déconnexion
               </button>
             </nav>
@@ -322,7 +357,7 @@ export default function UserDashboard() {
       </header>
 
       {/* History Modal */}
-      <HistoryModal 
+      <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
       />
@@ -343,7 +378,7 @@ export default function UserDashboard() {
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
             <div className="bg-white/70 backdrop-blur-md rounded-xl p-6 md:p-10 shadow-xl max-w-2xl mx-auto">
               <h1 className="text-3xl md:text-4xl font-bold text-black mb-4 drop-shadow-lg">
-                Bienvenue sur votre espace gourmand 👋
+                Bienvenue {user?.nom_complet || nomComplet} sur votre espace gourmand 👋
               </h1>
               <p className="text-gray-700 text-lg md:text-xl font-medium">
                 Créez des repas personnalisés en tenant compte de vos ingrédients, préférences santé et allergies !
@@ -354,7 +389,7 @@ export default function UserDashboard() {
 
         {/* Smart Search */}
         <div className="mb-8">
-          <SmartSearch 
+          <SmartSearch
             onSearch={handleSearch}
             recipes={recipes}
             onFilterChange={handleFilterChange}
@@ -367,11 +402,10 @@ export default function UserDashboard() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === tab.id
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${activeTab === tab.id
                   ? 'bg-gradient-to-r from-coral-400 to-peach-400 text-black shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-black'
-              }`}
+                }`}
             >
               <span>{tab.icon}</span>
               <span>{tab.label}</span>
@@ -401,7 +435,7 @@ export default function UserDashboard() {
                 {/* Mode 2: Ingrédients */}
                 {mode === "ingredients" && (
                   <div className="space-y-6">
-                    <IngredientSelector 
+                    <IngredientSelector
                       selectedIngredients={selectedIngredients}
                       setSelectedIngredients={setSelectedIngredients}
                       customIngredient={customIngredient}
@@ -409,12 +443,12 @@ export default function UserDashboard() {
                       handleAddCustomIngredient={handleAddCustomIngredient}
                     />
 
-                    <HealthCriteriaSelector 
+                    <HealthCriteriaSelector
                       selectedHealthCriteria={selectedHealthCriteria}
                       setSelectedHealthCriteria={setSelectedHealthCriteria}
                     />
 
-                    <AllergySelector 
+                    <AllergySelector
                       selectedAllergies={selectedAllergies}
                       setSelectedAllergies={setSelectedAllergies}
                       customAllergy={customAllergy}
@@ -426,11 +460,10 @@ export default function UserDashboard() {
                     <button
                       onClick={handleGenerateFromIngredients}
                       disabled={selectedIngredients.length === 0}
-                      className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-                        selectedIngredients.length === 0
+                      className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${selectedIngredients.length === 0
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : 'bg-black text-white hover:bg-gray-800'
-                      }`}
+                        }`}
                     >
                       🤖 Générer des recettes sécurisées avec ces critères
                     </button>
@@ -446,13 +479,21 @@ export default function UserDashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filtered.length ? (
                     filtered.map((recipe, index) => (
-                      <RecipeCard key={recipe.name} recipe={recipe} index={index} />
+                      <RecipeCard
+                        key={recipe.name}
+                        recipe={recipe}
+                        index={index}
+                        onVoirRecette={() => {
+                          setSelectedRecipe(recipe);
+                          setIsRecipeModalOpen(true);
+                        }}
+                      />
                     ))
                   ) : (
                     <div className="col-span-full text-center py-12">
                       <div className="text-6xl mb-4">🍽️</div>
                       <p className="text-gray-600 text-lg">
-                        {mode === "ingredients" 
+                        {mode === "ingredients"
                           ? "Aucune recette trouvée avec ces critères. Essayez d'ajuster vos ingrédients ou critères de santé !"
                           : "Aucune recette trouvée pour cette recherche ou catégorie."
                         }
@@ -472,7 +513,7 @@ export default function UserDashboard() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <RecipeGenerator 
+              <RecipeGenerator
                 selectedIngredients={selectedIngredients}
                 selectedHealthCriteria={selectedHealthCriteria}
                 selectedAllergies={selectedAllergies}
@@ -489,7 +530,7 @@ export default function UserDashboard() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <RecipeStats 
+              <RecipeStats
                 recipes={recipes}
                 userPreferences={{
                   ingredients: selectedIngredients,
@@ -516,6 +557,18 @@ export default function UserDashboard() {
         {/* Quick Actions */}
         <QuickActions onHistoryClick={() => setIsHistoryModalOpen(true)} />
       </main>
+
+      {/* Recipe Modal global */}
+      <RecipeModal
+        isOpen={isRecipeModalOpen}
+        onClose={() => setIsRecipeModalOpen(false)}
+        recipe={selectedRecipe}
+        onAccept={(recipe) => {
+          setIsRecipeModalOpen(false);
+          // Ici tu peux ajouter ta logique métier (ex: enregistrer la recette, changer d'état, etc)
+          alert(`Recette acceptée : ${recipe.name}`);
+        }}
+      />
 
       {/* CSS Animations */}
       <style jsx>{`
