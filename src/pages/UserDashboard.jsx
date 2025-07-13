@@ -14,6 +14,7 @@ import RecipeStats from "../components/RecipeStats";
 import SmartSearch from "../components/SmartSearch";
 import CookingTimer from "../components/CookingTimer";
 import { AnimatePresence } from "framer-motion";
+import RecipeModal from "../components/RecipeModal";
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -176,6 +177,8 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("recipes");
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [searchFilters, setSearchFilters] = useState({});
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   // Simulate loading
   useEffect(() => {
@@ -446,7 +449,15 @@ export default function UserDashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filtered.length ? (
                     filtered.map((recipe, index) => (
-                      <RecipeCard key={recipe.name} recipe={recipe} index={index} />
+                      <RecipeCard
+                        key={recipe.name}
+                        recipe={recipe}
+                        index={index}
+                        onVoirRecette={() => {
+                          setSelectedRecipe(recipe);
+                          setIsRecipeModalOpen(true);
+                        }}
+                      />
                     ))
                   ) : (
                     <div className="col-span-full text-center py-12">
@@ -516,6 +527,18 @@ export default function UserDashboard() {
         {/* Quick Actions */}
         <QuickActions onHistoryClick={() => setIsHistoryModalOpen(true)} />
       </main>
+
+      {/* Recipe Modal global */}
+      <RecipeModal
+        isOpen={isRecipeModalOpen}
+        onClose={() => setIsRecipeModalOpen(false)}
+        recipe={selectedRecipe}
+        onAccept={(recipe) => {
+          setIsRecipeModalOpen(false);
+          // Ici tu peux ajouter ta logique métier (ex: enregistrer la recette, changer d'état, etc)
+          alert(`Recette acceptée : ${recipe.name}`);
+        }}
+      />
 
       {/* CSS Animations */}
       <style jsx>{`

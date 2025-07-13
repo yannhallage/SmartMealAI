@@ -14,7 +14,7 @@ const healthCriteria = [
   { key: "low_sodium", label: "Faible en sodium", emoji: "🧂" },
 ];
 
-const RecipeModal = ({ isOpen, onClose, recipe }) => {
+const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
   if (!recipe) return null;
 
   return (
@@ -24,7 +24,7 @@ const RecipeModal = ({ isOpen, onClose, recipe }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center min-h-screen p-4 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -32,7 +32,7 @@ const RecipeModal = ({ isOpen, onClose, recipe }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full w-[700px] max-h-[90vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Header - copie exacte du style HistoryModal */}
@@ -167,9 +167,17 @@ const RecipeModal = ({ isOpen, onClose, recipe }) => {
             {/* Footer */}
             <div className="p-6 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  Détail de la recette
-                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    onClick={() => onAccept && onAccept(recipe)}
+                  >
+                    Accepter cette recette
+                  </button>
+                  <p className="text-sm text-gray-600">
+                    Détail de la recette
+                  </p>
+                </div>
                 <button
                   onClick={onClose}
                   className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"

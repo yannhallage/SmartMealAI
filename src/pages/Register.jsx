@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { registerUser } from "../api/auth";
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -55,15 +56,10 @@ export default function Register() {
     
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Appel API simulé
+    await registerUser(form);
     
-    // Mock registration - in real app, this would be an API call
-    if (form.name && form.email && form.password && form.confirmPassword) {
-      setIsSubmitted(true);
-      // Here you would typically create the user account
-      console.log("Registration successful:", form);
-    }
+    setIsSubmitted(true);
     
     setIsLoading(false);
   };
