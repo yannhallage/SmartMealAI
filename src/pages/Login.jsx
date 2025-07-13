@@ -1,11 +1,23 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser, isAuthenticated } from "../api/auth";
+import { useAuth } from "../hooks/useAuth.jsx";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const navigate = useNavigate();
+  const { login, isAuth } = useAuth();
+
+  // Vérifier si l'utilisateur est déjà connecté au chargement
+  useEffect(() => {
+    if (isAuth || isAuthenticated()) {
+      navigate("/dashboard");
+    }
+  }, [isAuth, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -34,6 +46,9 @@ export default function Login() {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
+    if (apiError) {
+      setApiError("");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -42,19 +57,48 @@ export default function Login() {
     if (!validateForm()) return;
     
     setIsLoading(true);
+    setApiError("");
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock authentication - in real app, this would be an API call
-    if (form.email && form.password) {
+    try {
+      // Appel à l'API d'authentification réelle
+      const response = await loginUser(form);
+      
+      console.log("Connexion réussie:", response);
+      
+      // Mettre à jour le contexte d'authentification
+      login(response.user || { email: form.email }, response.token);
+      
       setIsSubmitted(true);
-      // Here you would typically store the user token/session
-      console.log("Login successful:", form);
+      
+      // Redirection vers le dashboard après un court délai
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+      
+    } catch (err) {
+      console.error("Erreur de connexion:", err);
+      setApiError(err.message || "Erreur lors de la connexion");
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
+
+  // Si l'utilisateur est déjà connecté, afficher un message de chargement
+  if (isAuth || isAuthenticated()) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="animate-spin w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p className="text-gray-600">Redirection vers votre dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
@@ -85,6 +129,13 @@ export default function Login() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Affichage des erreurs API */}
+              {apiError && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-red-600 text-sm">{apiError}</p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Adresse email
