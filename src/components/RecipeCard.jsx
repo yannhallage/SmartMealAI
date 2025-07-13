@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import RecipeModal from "./RecipeModal";
 
 const healthCriteria = [
   { key: "vegetarian", label: "Végétarien", emoji: "🥬" },
@@ -14,6 +15,7 @@ const healthCriteria = [
 ];
 
 const RecipeCard = ({ recipe, index }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <div
       className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
@@ -81,11 +83,21 @@ const RecipeCard = ({ recipe, index }) => {
           <span className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium">
             {recipe.time}
           </span>
-          <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
             Voir la recette
           </button>
         </div>
       </div>
+
+      {/* Recipe Modal */}
+      <RecipeModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        recipe={recipe}
+      />
     </div>
   );
 };

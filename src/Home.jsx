@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,21 +39,12 @@ export default function Home() {
               <a href="#about" className="text-gray-700 hover:text-sage-600 transition-colors font-medium">
                 À propos
               </a>
-              {!isLoggedIn ? (
-                <button 
-                  onClick={() => setIsLoggedIn(true)}
-                  className="bg-gradient-to-r from-sage-400 to-mint-400 text-black px-6 py-2 rounded-lg font-medium hover:from-sage-500 hover:to-mint-500 transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  Se connecter
-                </button>
-              ) : (
-                <button 
-                  onClick={() => setIsLoggedIn(false)}
-                  className="text-gray-700 hover:text-sage-600 transition-colors font-medium"
-                >
-                  Déconnexion
-                </button>
-              )}
+              <Link 
+                to="/login"
+                className="bg-gradient-to-r from-sage-400 to-mint-400 text-black px-6 py-2 rounded-lg font-medium hover:from-sage-500 hover:to-mint-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Se connecter
+              </Link>
             </nav>
 
             {/* Mobile menu button */}
@@ -89,14 +81,13 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <motion.button 
-                  onClick={() => setIsLoggedIn(true)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-sage-400 to-mint-400 text-black px-8 py-4 rounded-xl font-semibold text-lg hover:from-sage-500 hover:to-mint-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                <Link
+                  to="/login"
+                  className="bg-gradient-to-r from-sage-400 to-mint-400 text-black px-8 py-4 rounded-xl font-semibold text-lg hover:from-sage-500 hover:to-mint-500 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center"
+                  style={{ textAlign: 'center' }}
                 >
                   🚀 Commencer gratuitement
-                </motion.button>
+                </Link>
                 <motion.button 
                   onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
                   whileHover={{ scale: 1.05 }}

@@ -52,7 +52,7 @@ const allRecipes = [
   { 
     name: "Poulet Yassa", 
     category: "africa", 
-    img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80", 
+    img: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024", 
     desc: "Spécialité sénégalaise acidulée.", 
     time: "50 min", 
     ingredients: ["Poulet", "Oignons", "Citron", "Huile", "Épices"],
@@ -96,7 +96,7 @@ const allRecipes = [
   { 
     name: "Tajine d'agneau", 
     category: "orient", 
-    img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80", 
+    img: "https://kissmychef.com/wp-content/uploads/2024/10/tajine.png", 
     desc: "Saveurs du Maghreb.", 
     time: "1h30", 
     ingredients: ["Agneau", "Pruneaux", "Amandes", "Épices", "Couscous"],
