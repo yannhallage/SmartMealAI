@@ -17,6 +17,23 @@ const healthCriteria = [
 const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
   if (!recipe) return null;
 
+  // Utilisation stricte des attributs français du backend
+  const {
+    titre,
+    imageUrl,
+    description,
+    ingredientsPrincipaux = [],
+    nutritionParPortion = {},
+    allergenes = [],
+    criteresSante = [],
+    origine,
+    tempsPreparation,
+    instructions
+  } = recipe;
+
+  if (recipe) {
+    console.log('🔍 RecipeModal:', recipe);
+  }
   return (
     <AnimatePresence>
       {isOpen && (
@@ -35,14 +52,14 @@ const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full w-[700px] max-h-[90vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
-            {/* Header - copie exacte du style HistoryModal */}
+            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-coral-400 via-peach-400 to-honey-400 rounded-xl flex items-center justify-center">
                   <span className="text-white font-bold text-lg">🍽️</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{recipe.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{titre}</h2>
                   <p className="text-gray-600 text-sm">Détail de la recette générée par SmartMealAI</p>
                 </div>
               </div>
@@ -56,56 +73,57 @@ const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
               </button>
             </div>
 
-            {/* Content - même structure que HistoryModal */}
+            {/* Content */}
             <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Image */}
                   <div className="flex-shrink-0">
                     <div className="bg-gray-100 rounded-lg w-40 h-40 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={recipe.img}
-                        alt={recipe.name}
-                        className="w-full h-full object-cover"
-                      />
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={titre}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">Aucune image</div>
+                      )}
                     </div>
                   </div>
                   {/* Infos principales */}
                   <div className="flex-1 space-y-3">
                     <div>
                       <span className="inline-block bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mr-2 mb-2">
-                        {recipe.category}
+                        {origine || 'Origine inconnue'}
                       </span>
                       <span className="inline-block bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mr-2 mb-2">
-                        ⏱️ {recipe.time}
+                        ⏱️ {tempsPreparation ? tempsPreparation + ' min' : '-- min'}
                       </span>
                     </div>
-                    <p className="text-gray-700 leading-relaxed mb-2">{recipe.desc}</p>
+                    <p className="text-gray-700 leading-relaxed mb-2">{description}</p>
                     {/* Critères de santé */}
-                    {recipe.health && recipe.health.length > 0 && (
+                    {criteresSante.length > 0 && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 mb-2">Critères de santé :</h4>
                         <div className="flex flex-wrap gap-2">
-                          {recipe.health.map((health) => {
-                            const healthInfo = healthCriteria.find(h => h.key === health);
-                            return healthInfo ? (
-                              <span
-                                key={health}
-                                className="bg-white px-3 py-1 rounded-full text-xs text-green-700 border border-green-200"
-                              >
-                                {healthInfo.emoji} {healthInfo.label}
-                              </span>
-                            ) : null;
-                          })}
+                          {criteresSante.map((critere) => (
+                            <span
+                              key={critere}
+                              className="bg-white px-3 py-1 rounded-full text-xs text-green-700 border border-green-200"
+                            >
+                              {critere}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     )}
                     {/* Allergènes */}
-                    {recipe.allergens && recipe.allergens.length > 0 && (
+                    {allergenes.length > 0 && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 mb-2">Allergènes :</h4>
                         <div className="flex flex-wrap gap-2">
-                          {recipe.allergens.map((allergen) => (
+                          {allergenes.map((allergen) => (
                             <span
                               key={allergen}
                               className="bg-white px-3 py-1 rounded-full text-xs text-red-700 border border-red-200"
@@ -116,49 +134,55 @@ const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
                         </div>
                       </div>
                     )}
-                    {/* Ingrédients */}
+                    {/* Ingrédients principaux */}
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 mb-2">Ingrédients principaux :</h4>
                       <div className="flex flex-wrap gap-2">
-                        {recipe.ingredients.map((ingredient, idx) => (
+                        {ingredientsPrincipaux.length > 0 ? ingredientsPrincipaux.map((ingredient, idx) => (
                           <span
                             key={idx}
                             className="bg-white px-3 py-1 rounded-full text-xs text-gray-700 border border-gray-200"
                           >
                             {ingredient}
                           </span>
-                        ))}
+                        )) : <span className="text-gray-400 text-xs">Aucun ingrédient</span>}
                       </div>
                     </div>
-                    {/* Nutrition */}
-                    {recipe.nutrition && (
+                    {/* Nutrition (par portion) */}
+                    {nutritionParPortion && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 mb-2">Nutrition (par portion) :</h4>
                         <div className="flex flex-wrap gap-3">
                           <span className="bg-white px-3 py-1 rounded-full text-xs text-blue-700 border border-blue-200">
-                            {recipe.nutrition.calories} kcal
+                            {nutritionParPortion.kcal || 0} kcal
                           </span>
                           <span className="bg-white px-3 py-1 rounded-full text-xs text-green-700 border border-green-200">
-                            {recipe.nutrition.protein}g protéines
+                            {nutritionParPortion.proteines || 0}g protéines
                           </span>
                           <span className="bg-white px-3 py-1 rounded-full text-xs text-orange-700 border border-orange-200">
-                            {recipe.nutrition.carbs}g glucides
+                            {nutritionParPortion.glucides || 0}g glucides
                           </span>
                           <span className="bg-white px-3 py-1 rounded-full text-xs text-red-700 border border-red-200">
-                            {recipe.nutrition.fat}g lipides
+                            {nutritionParPortion.lipides || 0}g lipides
                           </span>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
-                {/* Instructions (placeholder) */}
+                {/* Instructions */}
                 <div className="mt-6">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Instructions de préparation :</h4>
                   <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-gray-600 italic">
-                      Les instructions détaillées de préparation seront générées par l'IA en fonction de vos ingrédients et préférences.
-                    </p>
+                    {instructions ? (
+                      instructions.split('\n').map((line, idx) => (
+                        <div key={idx} className="text-gray-700 mb-1">{line}</div>
+                      ))
+                    ) : (
+                      <p className="text-gray-600 italic">
+                        Aucune instruction disponible.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

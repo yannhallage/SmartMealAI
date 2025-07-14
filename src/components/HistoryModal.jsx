@@ -159,7 +159,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                           <div>
                             <h4 className="text-sm font-medium text-gray-900 mb-2">Ingrédients principaux :</h4>
                             <div className="flex flex-wrap gap-2">
-                              {recipe.ingredients.slice(0, 4).map((ingredient, idx) => (
+                              {recipe.ingredientsPrincipaux.slice(0, 4).map((ingredient, idx) => (
                                 <span
                                   key={idx}
                                   className="bg-white px-3 py-1 rounded-full text-xs text-gray-700 border border-gray-200"
@@ -167,9 +167,9 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                                   {ingredient}
                                 </span>
                               ))}
-                              {recipe.ingredients.length > 4 && (
+                              {recipe.ingredientsPrincipaux.length > 4 && (
                                 <span className="bg-white px-3 py-1 rounded-full text-xs text-gray-500 border border-gray-200">
-                                  +{recipe.ingredients.length - 4} autres
+                                  +{recipe.ingredientsPrincipaux.length - 4} autres
                                 </span>
                               )}
                             </div>
