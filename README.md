@@ -61,6 +61,30 @@ L’architecture repose sur une séparation claire frontend/backend, orchestrée
 
 ---
 
+## 🖼️ Aperçus de l'application
+
+### Dashboard
+<p align="center">
+  <img src="./docs/dashboard.png" alt="Dashboard SmartMealAI" width="700"/>
+</p>
+
+### Page de connexion
+<p align="center">
+  <img src="./docs/login.png" alt="Page de connexion SmartMealAI" width="400"/>
+</p>
+
+### Page d'inscription
+<p align="center">
+  <img src="./docs/register.png" alt="Page d'inscription SmartMealAI" width="400"/>
+</p>
+
+### Sélecteur d'ingrédients et suggestions IA
+<p align="center">
+  <img src="./docs/donnee.png" alt="Sélecteur d'ingrédients et suggestions IA" width="600"/>
+</p>
+
+---
+
 ## ⚡ Installation & Lancement
 
 ### Prérequis
