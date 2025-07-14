@@ -26,6 +26,8 @@ class ApiClient {
     };
 
     try {
+      console.log(`[API] Appel vers: ${url}`);
+      console.log(`[API] Headers:`, headers);
       const response = await fetch(url, config);
       
       // Gérer les erreurs d'authentification
@@ -39,7 +41,13 @@ class ApiClient {
       // Gérer les autres erreurs HTTP
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Erreur ${response.status}: ${response.statusText}`);
+        const errorMessage = errorData.error || errorData.message || `Erreur ${response.status}: ${response.statusText}`;
+        const enhancedError = new Error(errorMessage);
+        enhancedError.status = response.status;
+        enhancedError.statusText = response.statusText;
+        enhancedError.errorData = errorData;
+        enhancedError.response = response;
+        throw enhancedError;
       }
 
       // Parser la réponse JSON

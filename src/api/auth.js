@@ -24,9 +24,56 @@ export const removeNameUser = () => {
   localStorage.removeItem('nom_complet');
 };
 
+// Fonction pour décoder un token JWT (base64)
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('[API] Erreur lors du décodage du token JWT:', error);
+    return null;
+  }
+};
+
+export const setUserId = (userId) => {
+  console.log('[API] userId stocké avec succès', userId);
+  localStorage.setItem('user_id', userId);
+};
+
+export const getUserId = () => {
+  return localStorage.getItem('user_id');
+};
+
+// Fonction pour extraire l'ID utilisateur du token JWT
+export const extractUserIdFromToken = () => {
+  const token = getToken();
+  if (!token) return null;
+  
+  const decoded = decodeJWT(token);
+  if (decoded) {
+    console.log('[API] Token JWT décodé:', decoded);
+    // Chercher l'ID dans différentes propriétés possibles
+    const userId = decoded.user_id || decoded.userId || decoded.id || decoded.sub;
+    if (userId) {
+      console.log('[API] ID utilisateur extrait du token:', userId);
+      return userId;
+    }
+  }
+  return null;
+};
+
+export const removeUserId = () => {
+  localStorage.removeItem('user_id');
+};
+
 export const removeToken = () => {
   localStorage.removeItem('token');
   removeNameUser(); // Supprimer aussi le nom_complet lors de la déconnexion
+  removeUserId(); // Supprimer aussi l'ID utilisateur lors de la déconnexion
 };
 
 export const isAuthenticated = () => {
@@ -65,6 +112,9 @@ export async function registerUser(formData) {
       if (data.nom_complet) {
         setNameUser(data.nom_complet);
       }
+      if (data.user_id || data.id) {
+        setUserId(data.user_id || data.id);
+      }
     }
     
     return data;
@@ -94,11 +144,29 @@ export async function loginUser({ email, password }) {
       if (data.nom_complet) {
         setNameUser(data.nom_complet);
       }
+      
+      // Stocker aussi l'ID utilisateur si disponible
+      if (data.user_id || data.id) {
+        setUserId(data.user_id || data.id);
+      } else {
+        // Essayer d'extraire l'ID du token JWT
+        const userIdFromToken = extractUserIdFromToken();
+        if (userIdFromToken) {
+          setUserId(userIdFromToken);
+        }
+      }
     } else {
       console.warn('[API] Aucun token reçu du serveur');
     }
     
     console.log('[API] loginUser response:', data);
+    console.log('[API] Structure de la réponse:', {
+      hasToken: !!data.token,
+      hasNomComplet: !!data.nom_complet,
+      hasUserId: !!data.user_id,
+      hasId: !!data.id,
+      allKeys: Object.keys(data)
+    });
     return data;
   } catch (err) {
     console.error('[API] loginUser error:', err);
