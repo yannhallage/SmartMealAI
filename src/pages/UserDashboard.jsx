@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { logoutUser } from "../api/auth";
+import { api } from "../api/apiClient";
 import { useAuth } from "../hooks/useAuth.jsx";
 import HistoryModal from "../components/HistoryModal";
 import ModeSelector from "../components/ModeSelector";
@@ -220,7 +221,10 @@ export default function UserDashboard() {
 
   const handleAddCustomIngredient = () => {
     if (customIngredient.trim() && !selectedIngredients.includes(customIngredient.trim())) {
-      setSelectedIngredients(prev => [...prev, customIngredient.trim()]);
+      const newIngredient = customIngredient.trim();
+      setSelectedIngredients(prev => [...prev, newIngredient]);
+      console.log(`✨ Ingrédient personnalisé ajouté: "${newIngredient}"`);
+      console.log(`📋 Liste complète des ingrédients:`, [...selectedIngredients, newIngredient]);
       setCustomIngredient("");
     }
   };
@@ -234,8 +238,44 @@ export default function UserDashboard() {
 
   const handleGenerateFromIngredients = () => {
     if (selectedIngredients.length > 0) {
+      // Préparer les données à envoyer
+      const requestData = {
+        ingredients: selectedIngredients,
+        healthCriteria: selectedHealthCriteria,
+        allergies: selectedAllergies,
+        timestamp: new Date().toISOString(),
+        userId: user?.id || 'anonymous'
+      };
+
+      // Afficher les données en console AVANT l'envoi au backend
+      console.log('🍽️ Données sélectionnées par l\'utilisateur (mode ingrédients):');
+      console.log('📋 Ingrédients sélectionnés:', selectedIngredients);
+      console.log('🏥 Critères de santé:', selectedHealthCriteria);
+      console.log('⚠️ Allergies:', selectedAllergies);
+      console.log('🕐 Timestamp:', requestData.timestamp);
+      console.log('👤 Utilisateur:', requestData.userId);
+      console.log('📦 Données complètes à envoyer au backend:', requestData);
+      console.log('---');
+
       setIsLoading(true);
+
+      // Simulation d'envoi au backend (remplacer par l'appel API réel)
       setTimeout(() => {
+        // TODO: Remplacer par l'appel API réel
+        // api.recipes.generate(requestData)
+        //   .then(response => {
+        //     console.log('✅ Réponse du backend:', response);
+        //     setRecipes(response.recipes || []);
+        //   })
+        //   .catch(error => {
+        //     console.error('❌ Erreur API:', error);
+        //     // Fallback vers le filtrage local
+        //   })
+        //   .finally(() => {
+        //     setIsLoading(false);
+        //   });
+
+        // Pour l'instant, on garde le filtrage local
         let matchingRecipes = allRecipes.filter(recipe => {
           const hasIngredients = recipe.ingredients.some(ingredient =>
             selectedIngredients.some(selected =>
@@ -256,6 +296,7 @@ export default function UserDashboard() {
           return hasIngredients && meetsHealthCriteria && isAllergySafe;
         });
 
+        console.log('🎯 Recettes trouvées après filtrage:', matchingRecipes.length);
         setRecipes(matchingRecipes);
         setIsLoading(false);
       }, 1500);
@@ -336,7 +377,7 @@ export default function UserDashboard() {
                 className="text-gray-700 hover:text-sage-600 transition-colors font-medium flex items-center space-x-2"
               >
                 <span>📚</span>
-                <span>Historique</span>
+                <span>Mes recettes</span>
               </button>
               <button
                 onClick={handleLogout}

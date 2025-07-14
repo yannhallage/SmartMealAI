@@ -13,6 +13,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
       ingredients: ["Pâtes", "Œufs", "Fromage", "Lardons"],
       time: "20 min",
       category: "Européen"
+      
     },
     {
       id: 2,
