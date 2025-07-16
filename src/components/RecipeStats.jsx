@@ -26,31 +26,26 @@ const RecipeStats = ({ recipes, userPreferences }) => {
 
     recipes.forEach(recipe => {
       // Cuisine préférée
-      cuisineCount[recipe.category] = (cuisineCount[recipe.category] || 0) + 1;
-      
+      cuisineCount[recipe.origine] = (cuisineCount[recipe.origine] || 0) + 1;
       // Calories moyennes
-      if (recipe.nutrition) {
-        totalCalories += recipe.nutrition.calories;
+      if (recipe.nutritionParPortion) {
+        totalCalories += recipe.nutritionParPortion.kcal;
       }
-
       // Ingrédients les plus utilisés
-      if (recipe.ingredients) {
-        recipe.ingredients.forEach(ingredient => {
+      if (recipe.ingredientsPrincipaux) {
+        recipe.ingredientsPrincipaux.forEach(ingredient => {
           ingredientCount[ingredient] = (ingredientCount[ingredient] || 0) + 1;
         });
       }
-
       // Critères de santé
-      if (recipe.health) {
-        recipe.health.forEach(health => {
+      if (recipe.criteresSante) {
+        recipe.criteresSante.forEach(health => {
           healthCount[health] = (healthCount[health] || 0) + 1;
         });
       }
-
       // Temps de cuisson
-      const time = recipe.time;
-      if (time.includes('min')) {
-        const minutes = parseInt(time);
+      const minutes = recipe.tempsPreparation;
+      if (typeof minutes === 'number') {
         if (minutes <= 20) timeStats.quick++;
         else if (minutes <= 45) timeStats.medium++;
         else timeStats.long++;
@@ -66,17 +61,12 @@ const RecipeStats = ({ recipes, userPreferences }) => {
       .slice(0, 5)
       .map(([ingredient]) => ingredient);
 
-    const topHealthGoals = Object.entries(healthCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
-      .map(([health]) => health);
-
     setStats({
       totalRecipes: recipes.length,
       favoriteCuisine,
-      averageCalories: Math.round(totalCalories / recipes.length),
+      averageCalories: recipes.length > 0 ? Math.round(totalCalories / recipes.length) : 0,
       mostUsedIngredients,
-      healthGoals: topHealthGoals,
+      healthGoals: Object.keys(healthCount),
       cookingTime: timeStats
     });
   };

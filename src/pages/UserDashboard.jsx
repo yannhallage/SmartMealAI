@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { logoutUser } from "../api/auth";
+import { logoutUser, getAuthHeaders, getUserId } from "../api/auth";
+import { api } from "../api/apiClient";
 import { useAuth } from "../hooks/useAuth.jsx";
 import HistoryModal from "../components/HistoryModal";
 import ModeSelector from "../components/ModeSelector";
@@ -17,6 +18,8 @@ import SmartSearch from "../components/SmartSearch";
 import CookingTimer from "../components/CookingTimer";
 import { AnimatePresence } from "framer-motion";
 import RecipeModal from "../components/RecipeModal";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -25,143 +28,149 @@ const LoadingSpinner = () => (
       <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
       <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-black rounded-full animate-spin" style={{ animationDelay: '0.1s' }}></div>
     </div>
-    <p className="mt-4 text-gray-600 font-medium">Génération en cours...</p>
+    <p className="mt-4 text-gray-600 font-medium">🤖 Génération IA en cours...</p>
+    <p className="mt-2 text-gray-500 text-sm">Analyse de vos ingrédients et critères</p>
+    <div className="mt-4 flex space-x-2">
+      <div className="w-2 h-2 bg-black rounded-full animate-bounce"></div>
+      <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+      <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+    </div>
   </div>
 );
 
 
 const allRecipes = [
   {
-    name: "Pâtes Carbonara",
-    category: "europe",
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
-    desc: "Un classique italien crémeux.",
-    time: "20 min",
-    ingredients: ["Pâtes", "Œufs", "Fromage", "Lardons", "Poivre noir"],
-    health: ["high_protein"],
-    allergens: ["gluten", "lactose", "œufs"],
-    nutrition: { calories: 450, protein: 25, carbs: 35, fat: 22 }
+    titre: "Pâtes Carbonara",
+    origine: "europe",
+    imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+    description: "Un classique italien crémeux.",
+    tempsPreparation: 20,
+    ingredientsPrincipaux: ["Pâtes", "Œufs", "Fromage", "Lardons", "Poivre noir"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten", "lactose", "œufs"],
+    nutritionParPortion: { kcal: 450, proteines: 25, glucides: 35, lipides: 22 }
   },
   {
-    name: "Quiche Lorraine",
-    category: "europe",
-    img: "https://images.unsplash.com/photo-1650844010413-3f24dc1c182b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "La France dans votre assiette.",
-    time: "35 min",
-    ingredients: ["Pâte brisée", "Œufs", "Crème", "Lardons", "Fromage"],
-    health: ["high_protein"],
-    allergens: ["gluten", "lactose", "œufs"],
-    nutrition: { calories: 380, protein: 18, carbs: 28, fat: 24 }
+    titre: "Quiche Lorraine",
+    origine: "europe",
+    imageUrl: "https://images.unsplash.com/photo-1650844010413-3f24dc1c182b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "La France dans votre assiette.",
+    tempsPreparation: 35,
+    ingredientsPrincipaux: ["Pâte brisée", "Œufs", "Crème", "Lardons", "Fromage"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten", "lactose", "œufs"],
+    nutritionParPortion: { kcal: 380, proteines: 18, glucides: 28, lipides: 24 }
   },
   {
-    name: "Poulet Yassa",
-    category: "africa",
-    img: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024",
-    desc: "Spécialité sénégalaise acidulée.",
-    time: "50 min",
-    ingredients: ["Poulet", "Oignons", "Citron", "Huile", "Épices"],
-    health: ["high_protein", "low_carb"],
-    allergens: [],
-    nutrition: { calories: 320, protein: 35, carbs: 8, fat: 18 }
+    titre: "Poulet Yassa",
+    origine: "africa",
+    imageUrl: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024",
+    description: "Spécialité sénégalaise acidulée.",
+    tempsPreparation: 50,
+    ingredientsPrincipaux: ["Poulet", "Oignons", "Citron", "Huile", "Épices"],
+    criteresSante: ["richeEnProteines", "faibleEnGlucides"],
+    allergenes: [],
+    nutritionParPortion: { kcal: 320, proteines: 35, glucides: 8, lipides: 18 }
   },
   {
-    name: "Mafé",
-    category: "africa",
-    img: "https://cdn.apartmenttherapy.info/image/upload/f_auto,q_auto:eco,c_fill,g_auto,w_728,h_546/k%2FPhoto%2FRecipes%2F2021-11-mafe%2F2021-11-03_ATK11087",
-    desc: "Ragoût africain à la cacahuète.",
-    time: "45 min",
-    ingredients: ["Viande", "Cacahuètes", "Tomates", "Oignons", "Riz"],
-    health: ["high_protein"],
-    allergens: ["arachides"],
-    nutrition: { calories: 420, protein: 28, carbs: 32, fat: 26 }
+    titre: "Mafé",
+    origine: "africa",
+    imageUrl: "https://cdn.apartmenttherapy.info/image/upload/f_auto,q_auto:eco,c_fill,g_auto,w_728,h_546/k%2FPhoto%2FRecipes%2F2021-11-mafe%2F2021-11-03_ATK11087",
+    description: "Ragoût africain à la cacahuète.",
+    tempsPreparation: 45,
+    ingredientsPrincipaux: ["Viande", "Cacahuètes", "Tomates", "Oignons", "Riz"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["arachides"],
+    nutritionParPortion: { kcal: 420, proteines: 28, glucides: 32, lipides: 26 }
   },
   {
-    name: "Pad Thaï",
-    category: "asia",
-    img: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "Nouilles sautées thaïlandaises.",
-    time: "25 min",
-    ingredients: ["Nouilles de riz", "Œufs", "Tofu", "Crevettes", "Cacahuètes"],
-    health: ["high_protein"],
-    allergens: ["gluten", "œufs", "crustacés", "arachides", "soja"],
-    nutrition: { calories: 380, protein: 22, carbs: 45, fat: 16 }
+    titre: "Pad Thaï",
+    origine: "asia",
+    imageUrl: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Nouilles sautées thaïlandaises.",
+    tempsPreparation: 25,
+    ingredientsPrincipaux: ["Nouilles de riz", "Œufs", "Tofu", "Crevettes", "Cacahuètes"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten", "œufs", "crustacés", "arachides", "soja"],
+    nutritionParPortion: { kcal: 380, proteines: 22, glucides: 45, lipides: 16 }
   },
   {
-    name: "Sushi Bowl",
-    category: "asia",
-    img: "https://images.unsplash.com/photo-1726824863833-e88146cf0a72?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "Version déstructurée du sushi.",
-    time: "15 min",
-    ingredients: ["Riz", "Saumon", "Avocat", "Concombre", "Algues"],
-    health: ["high_protein", "heart_healthy"],
-    allergens: ["poisson"],
-    nutrition: { calories: 340, protein: 24, carbs: 38, fat: 14 }
+    titre: "Sushi Bowl",
+    origine: "asia",
+    imageUrl: "https://images.unsplash.com/photo-1726824863833-e88146cf0a72?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Version déstructurée du sushi.",
+    tempsPreparation: 15,
+    ingredientsPrincipaux: ["Riz", "Saumon", "Avocat", "Concombre", "Algues"],
+    criteresSante: ["richeEnProteines", "bonPourLeCoeur"],
+    allergenes: ["poisson"],
+    nutritionParPortion: { kcal: 340, proteines: 24, glucides: 38, lipides: 14 }
   },
   {
-    name: "Tajine d'agneau",
-    category: "orient",
-    img: "https://kissmychef.com/wp-content/uploads/2024/10/tajine.png",
-    desc: "Saveurs du Maghreb.",
-    time: "1h30",
-    ingredients: ["Agneau", "Pruneaux", "Amandes", "Épices", "Couscous"],
-    health: ["high_protein"],
-    allergens: ["gluten", "noix"],
-    nutrition: { calories: 480, protein: 32, carbs: 42, fat: 28 }
+    titre: "Tajine d'agneau",
+    origine: "orient",
+    imageUrl: "https://kissmychef.com/wp-content/uploads/2024/10/tajine.png",
+    description: "Saveurs du Maghreb.",
+    tempsPreparation: 90,
+    ingredientsPrincipaux: ["Agneau", "Pruneaux", "Amandes", "Épices", "Couscous"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten", "noix"],
+    nutritionParPortion: { kcal: 480, proteines: 32, glucides: 42, lipides: 28 }
   },
   {
-    name: "Falafel Bowl",
-    category: "orient",
-    img: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "Boulettes veggie et houmous.",
-    time: "30 min",
-    ingredients: ["Pois chiches", "Persil", "Ail", "Pain pita", "Houmous"],
-    health: ["vegetarian", "vegan", "high_protein"],
-    allergens: ["gluten", "sésame"],
-    nutrition: { calories: 320, protein: 18, carbs: 45, fat: 12 }
+    titre: "Falafel Bowl",
+    origine: "orient",
+    imageUrl: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Boulettes veggie et houmous.",
+    tempsPreparation: 30,
+    ingredientsPrincipaux: ["Pois chiches", "Persil", "Ail", "Pain pita", "Houmous"],
+    criteresSante: ["vegetarien", "vegan", "richeEnProteines"],
+    allergenes: ["gluten", "sésame"],
+    nutritionParPortion: { kcal: 320, proteines: 18, glucides: 45, lipides: 12 }
   },
   {
-    name: "Tacos Mexicains",
-    category: "americas",
-    img: "https://images.unsplash.com/photo-1613409385222-3d0decb6742a?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "Street food mexicaine.",
-    time: "20 min",
-    ingredients: ["Tortillas", "Bœuf haché", "Tomates", "Oignons", "Avocat"],
-    health: ["high_protein"],
-    allergens: ["gluten"],
-    nutrition: { calories: 360, protein: 26, carbs: 32, fat: 18 }
+    titre: "Tacos Mexicains",
+    origine: "americas",
+    imageUrl: "https://images.unsplash.com/photo-1613409385222-3d0decb6742a?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Street food mexicaine.",
+    tempsPreparation: 20,
+    ingredientsPrincipaux: ["Tortillas", "Bœuf haché", "Tomates", "Oignons", "Avocat"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten"],
+    nutritionParPortion: { kcal: 360, proteines: 26, glucides: 32, lipides: 18 }
   },
   {
-    name: "Burger Maison",
-    category: "americas",
-    img: "https://plus.unsplash.com/premium_photo-1706540480687-605f201603fd?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    desc: "Le classique US revisité.",
-    time: "25 min",
-    ingredients: ["Pain burger", "Steak haché", "Fromage", "Salade", "Tomates"],
-    health: ["high_protein"],
-    allergens: ["gluten", "lactose"],
-    nutrition: { calories: 520, protein: 32, carbs: 28, fat: 34 }
+    titre: "Burger Maison",
+    origine: "americas",
+    imageUrl: "https://plus.unsplash.com/premium_photo-1706540480687-605f201603fd?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Le classique US revisité.",
+    tempsPreparation: 25,
+    ingredientsPrincipaux: ["Pain burger", "Steak haché", "Fromage", "Salade", "Tomates"],
+    criteresSante: ["richeEnProteines"],
+    allergenes: ["gluten", "lactose"],
+    nutritionParPortion: { kcal: 520, proteines: 32, glucides: 28, lipides: 34 }
   },
   {
-    name: "Poké Bowl",
-    category: "world",
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
-    desc: "Fusion healthy du monde.",
-    time: "18 min",
-    ingredients: ["Riz", "Saumon", "Avocat", "Mangue", "Sauce soja"],
-    health: ["high_protein", "heart_healthy"],
-    allergens: ["poisson", "soja"],
-    nutrition: { calories: 380, protein: 26, carbs: 42, fat: 16 }
+    titre: "Poké Bowl",
+    origine: "world",
+    imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+    description: "Fusion healthy du monde.",
+    tempsPreparation: 18,
+    ingredientsPrincipaux: ["Riz", "Saumon", "Avocat", "Mangue", "Sauce soja"],
+    criteresSante: ["richeEnProteines", "bonPourLeCoeur"],
+    allergenes: ["poisson", "soja"],
+    nutritionParPortion: { kcal: 380, proteines: 26, glucides: 42, lipides: 16 }
   },
   {
-    name: "Salade Quinoa",
-    category: "world",
-    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
-    desc: "Salade healthy et protéinée.",
-    time: "15 min",
-    ingredients: ["Quinoa", "Légumes", "Noix", "Vinaigrette", "Herbes"],
-    health: ["vegetarian", "vegan", "gluten_free", "high_protein"],
-    allergens: ["noix"],
-    nutrition: { calories: 280, protein: 12, carbs: 38, fat: 14 }
+    titre: "Salade Quinoa",
+    origine: "world",
+    imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
+    description: "Salade healthy et protéinée.",
+    tempsPreparation: 15,
+    ingredientsPrincipaux: ["Quinoa", "Légumes", "Noix", "Vinaigrette", "Herbes"],
+    criteresSante: ["vegetarien", "vegan", "sansGluten", "richeEnProteines"],
+    allergenes: ["noix"],
+    nutritionParPortion: { kcal: 280, proteines: 12, glucides: 38, lipides: 14 }
   },
 ];
 
@@ -183,6 +192,7 @@ export default function UserDashboard() {
   const [searchFilters, setSearchFilters] = useState({});
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [timerRecipe, setTimerRecipe] = useState(null);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
@@ -220,7 +230,10 @@ export default function UserDashboard() {
 
   const handleAddCustomIngredient = () => {
     if (customIngredient.trim() && !selectedIngredients.includes(customIngredient.trim())) {
-      setSelectedIngredients(prev => [...prev, customIngredient.trim()]);
+      const newIngredient = customIngredient.trim();
+      setSelectedIngredients(prev => [...prev, newIngredient]);
+      console.log(`✨ Ingrédient personnalisé ajouté: "${newIngredient}"`);
+      console.log(`📋 Liste complète des ingrédients:`, [...selectedIngredients, newIngredient]);
       setCustomIngredient("");
     }
   };
@@ -232,33 +245,407 @@ export default function UserDashboard() {
     }
   };
 
+  // Fonction pour traiter et formater les recettes du backend
+  const processBackendRecipes = (recipes) => {
+    return recipes.map(recipe => ({
+      name: recipe.name || recipe.title || recipe.titre || recipe.nom || 'Recette sans nom',
+      category: recipe.category || recipe.cuisine || recipe.origine || 'world',
+      img: recipe.img || recipe.image || recipe.photo || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80',
+      desc: recipe.desc || recipe.description || recipe.descripcion || 'Description non disponible',
+      time: recipe.time || recipe.duration || recipe.temps || recipe.tempsPreparation ? `${recipe.tempsPreparation} min` : 'Temps non spécifié',
+      ingredients: recipe.ingredients || recipe.ingredient || recipe.ingredients || [],
+      health: recipe.health || recipe.healthCriteria || recipe.criteres || recipe.criteresSante || [],
+      allergens: recipe.allergens || recipe.allergies || recipe.allergenes || recipe.allergenes || [],
+      nutrition: recipe.nutrition || recipe.nutritional || recipe.nutritionnel || { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      instructions: recipe.instructions || recipe.etapes || recipe.steps || recipe.etapesPreparation || [],
+      difficulty: recipe.difficulty || recipe.difficulte || 'Facile',
+      servings: recipe.servings || recipe.portions || recipe.personnes || recipe.nombrePersonnes || 2,
+      tips: recipe.tips || recipe.conseils || recipe.astuces || recipe.conseilsChef || null,
+      generatedAt: recipe.generatedAt || recipe.createdAt || new Date().toISOString(),
+      source: 'backend',
+      id: recipe.id || recipe._id || `backend-${Date.now()}-${Math.random()}`
+    }));
+  };
+
+  // Fonction pour tester l'état de l'authentification
+  const testAuthState = () => {
+    console.log('🔍 Test de l\'état d\'authentification:');
+    console.log('👤 User du contexte:', user);
+    console.log('🔐 Token:', localStorage.getItem('token'));
+    console.log('📝 Nom complet:', localStorage.getItem('nom_complet'));
+    console.log('🆔 User ID:', localStorage.getItem('user_id'));
+    
+    // Essayer d'extraire l'ID du token
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        const decoded = JSON.parse(jsonPayload);
+        console.log('🔓 Token JWT décodé:', decoded);
+      } catch (error) {
+        console.error('❌ Erreur décodage token:', error);
+      }
+    }
+  };
+
+  // Fonction de fallback pour utiliser les recettes locales
+  const useFallbackRecipes = () => {
+    console.log('🔄 Utilisation du filtrage local...');
+    let matchingRecipes = allRecipes.filter(recipe => {
+      const hasIngredients = recipe.ingredientsPrincipaux.some(ingredient =>
+        selectedIngredients.some(selected =>
+          ingredient.toLowerCase().includes(selected.toLowerCase())
+        )
+      );
+
+      const meetsHealthCriteria = selectedHealthCriteria.length === 0 ||
+        selectedHealthCriteria.some(criteria => recipe.criteresSante.includes(criteria));
+
+      const isAllergySafe = selectedAllergies.length === 0 ||
+        !selectedAllergies.some(allergy =>
+          recipe.allergenes.some(allergen =>
+            allergen.toLowerCase().includes(allergy.toLowerCase())
+          )
+        );
+
+      return hasIngredients && meetsHealthCriteria && isAllergySafe;
+    });
+    
+    console.log('🎯 Recettes trouvées après filtrage local:', matchingRecipes.length);
+    setRecipes(matchingRecipes);
+  };
+
   const handleGenerateFromIngredients = () => {
     if (selectedIngredients.length > 0) {
-      setIsLoading(true);
-      setTimeout(() => {
-        let matchingRecipes = allRecipes.filter(recipe => {
-          const hasIngredients = recipe.ingredients.some(ingredient =>
-            selectedIngredients.some(selected =>
-              ingredient.toLowerCase().includes(selected.toLowerCase())
-            )
-          );
+      // Mapping des critères de santé vers le format attendu par le backend
+      const healthCriteriaMapping = {
+        "vegetarian": "vegetarien",
+        "vegan": "vegan",
+        "gluten_free": "sansGluten",
+        "lactose_free": "sansLactose",
+        "low_carb": "faibleGlucides",
+        "low_fat": "faibleCalories",
+        "high_protein": "richeEnProteines",
+        "diabetic": "diabetique",
+        "heart_healthy": "bonPourLeCoeur",
+        "low_sodium": "faibleSodium"
+      };
 
-          const meetsHealthCriteria = selectedHealthCriteria.length === 0 ||
-            selectedHealthCriteria.some(criteria => recipe.health.includes(criteria));
+      // Conversion des critères de santé
+      const convertedHealthCriteria = selectedHealthCriteria.map(criteria => 
+        healthCriteriaMapping[criteria] || criteria
+      );
 
-          const isAllergySafe = selectedAllergies.length === 0 ||
-            !selectedAllergies.some(allergy =>
-              recipe.allergens.some(allergen =>
-                allergen.toLowerCase().includes(allergy.toLowerCase())
-              )
-            );
+      // Mapping des allergies vers le format attendu par le backend
+      const allergyMapping = {
+        "Gluten": "gluten",
+        "Lactose": "lactose",
+        "Œufs": "oeufs",
+        "Arachides": "arachides",
+        "Noix": "noix",
+        "Poisson": "poisson",
+        "Crustacés": "crustaces",
+        "Soja": "soja",
+        "Sésame": "sesame",
+        "Moutarde": "moutarde",
+        "Céleri": "celeri",
+        "Sulfites": "sulfites",
+        "Lupin": "lupin",
+        "Mollusques": "mollusques"
+      };
 
-          return hasIngredients && meetsHealthCriteria && isAllergySafe;
+      // Conversion des allergies
+      const convertedAllergies = selectedAllergies.map(allergy => 
+        allergyMapping[allergy] || allergy.toLowerCase()
+      );
+
+      // Vérifier que l'utilisateur est connecté et récupérer l'ID
+      let userId = user?.id;
+      
+      if (!userId) {
+        // Essayer de récupérer l'ID depuis localStorage
+        userId = getUserId();
+        console.log('🔄 Récupération de l\'ID utilisateur depuis localStorage:', userId);
+      }
+      
+      if (!userId) {
+        console.error('❌ Erreur: Utilisateur non connecté ou ID manquant');
+        console.error('👤 État de l\'utilisateur:', user);
+        console.error('🔐 Token disponible:', !!localStorage.getItem('token'));
+        console.error('🆔 ID utilisateur dans localStorage:', getUserId());
+        
+        // Afficher tout le contenu du localStorage pour le débogage
+        console.log('📦 Contenu complet du localStorage:');
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          console.log(`   ${key}:`, value);
+        }
+        
+        toast.error('Veuillez vous reconnecter pour générer des recettes.');
+        return;
+      }
+
+      // Préparer les données à envoyer
+      const requestData = {
+        ingredients: selectedIngredients,
+        healthCriteria: convertedHealthCriteria,
+        allergies: convertedAllergies,
+        timestamp: new Date().toISOString(),
+        userId: userId
+      };
+
+      console.log('🔄 Conversion des critères de santé:');
+      console.log('   Original:', selectedHealthCriteria);
+      console.log('   Converti:', convertedHealthCriteria);
+      console.log('🔄 Conversion des allergies:');
+      console.log('   Original:', selectedAllergies);
+      console.log('   Converti:', convertedAllergies);
+
+      // Validation des données avant envoi
+      console.log('🔍 Validation des données avant envoi:');
+      const validation = {
+        ingredients: {
+          isValid: Array.isArray(requestData.ingredients) && requestData.ingredients.length > 0,
+          value: requestData.ingredients,
+          type: typeof requestData.ingredients
+        },
+        healthCriteria: {
+          isValid: Array.isArray(requestData.healthCriteria),
+          value: requestData.healthCriteria,
+          type: typeof requestData.healthCriteria
+        },
+        allergies: {
+          isValid: Array.isArray(requestData.allergies),
+          value: requestData.allergies,
+          type: typeof requestData.allergies
+        },
+        timestamp: {
+          isValid: typeof requestData.timestamp === 'string' && requestData.timestamp.length > 0,
+          value: requestData.timestamp,
+          type: typeof requestData.timestamp
+        },
+        userId: {
+          isValid: typeof requestData.userId === 'string' && requestData.userId.length > 0,
+          value: requestData.userId,
+          type: typeof requestData.userId
+        }
+      };
+
+      console.log('✅ Validation des données:', validation);
+      
+      const hasErrors = Object.values(validation).some(field => !field.isValid);
+      if (hasErrors) {
+        console.error('❌ Erreurs de validation détectées:');
+        Object.entries(validation).forEach(([key, field]) => {
+          if (!field.isValid) {
+            console.error(`   - ${key}: Type attendu 'array' ou 'string', reçu '${field.type}'`);
+          }
         });
+      }
 
-        setRecipes(matchingRecipes);
-        setIsLoading(false);
-      }, 1500);
+      // Afficher les données en console AVANT l'envoi au backend
+      console.log('🍽️ Données sélectionnées par l\'utilisateur (mode ingrédients):');
+      console.log('📋 Ingrédients sélectionnés:', selectedIngredients);
+      console.log('🏥 Critères de santé:', selectedHealthCriteria);
+      console.log('⚠️ Allergies:', selectedAllergies);
+      console.log('🕐 Timestamp:', requestData.timestamp);
+      console.log('👤 Utilisateur:', requestData.userId);
+      console.log('📦 Données complètes à envoyer au backend:', requestData);
+      console.log('📋 Format attendu par le backend:');
+      console.log('   {');
+      console.log('     "ingredients": ["Poisson", "Riz", ...],');
+      console.log('     "healthCriteria": ["vegetarien", "faibleCalories", ...],');
+      console.log('     "allergies": ["gluten", "lactose", ...],');
+      console.log('     "userId": "user123",');
+      console.log('     "timestamp": "2025-01-13T22:35:57.822Z"');
+      console.log('   }');
+      console.log('---');
+
+      setIsLoading(true);
+
+      // Envoi des données au backend
+      console.log('🚀 Envoi des données au backend...');
+      console.log('🌐 URL appelée: http://localhost:3000/api/recipes/generate');
+      console.log('📤 Méthode: POST');
+      console.log('📋 Headers qui seront envoyés:', getAuthHeaders());
+      
+      // Simuler un temps de chargement de 4 secondes
+      console.log('⏱️ Début du chargement (4 secondes)...');
+      setIsLoading(true);
+      
+      // Appel API vers le backend avec délai
+      setTimeout(() => {
+        api.recipes.generate(requestData)
+        .then(response => {
+          console.log('✅ Réponse du backend reçue avec succès!');
+          console.log('📦 Réponse complète du backend:', response);
+          console.log('🔍 Type de réponse:', typeof response);
+          console.log('📋 Clés disponibles dans la réponse:', Object.keys(response));
+          
+          // Afficher les métadonnées si elles existent
+          if (response && typeof response === 'object') {
+            if (response.status) console.log('📊 Statut:', response.status);
+            if (response.message) console.log('💬 Message:', response.message);
+            if (response.success !== undefined) console.log('✅ Succès:', response.success);
+            if (response.count !== undefined) console.log('🔢 Nombre total:', response.count);
+            if (response.timestamp) console.log('🕐 Timestamp réponse:', response.timestamp);
+          }
+          
+          // Affichage détaillé de la réponse
+          console.log('--- DÉTAILS DE LA RÉPONSE DU BACKEND ---');
+          
+          // Vérifier si c'est un tableau direct
+          if (Array.isArray(response)) {
+            console.log('📊 Format détecté: Tableau direct de recettes');
+            console.log('🍽️ Nombre de recettes reçues:', response.length);
+            console.log('📝 Recettes reçues:', response);
+            
+            // Analyser la structure des recettes
+            if (response.length > 0) {
+              console.log('🔍 Structure de la première recette:', response[0]);
+              console.log('📋 Propriétés de la première recette:', Object.keys(response[0]));
+            }
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response);
+          }
+          // Vérifier si c'est un objet avec une propriété recipes
+          else if (response && response.recipes && Array.isArray(response.recipes)) {
+            console.log('📊 Format détecté: Objet avec propriété "recipes"');
+            console.log('🍽️ Nombre de recettes reçues:', response.recipes.length);
+            console.log('📝 Recettes reçues:', response.recipes);
+            
+            // Analyser la structure des recettes
+            if (response.recipes.length > 0) {
+              console.log('🔍 Structure de la première recette:', response.recipes[0]);
+              console.log('📋 Propriétés de la première recette:', Object.keys(response.recipes[0]));
+            }
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response.recipes);
+          }
+          // Vérifier si c'est un objet avec une propriété data contenant recipes
+          else if (response && response.data && response.data.recipes && Array.isArray(response.data.recipes)) {
+            console.log('📊 Format détecté: Objet avec propriété "data.recipes"');
+            console.log('🍽️ Nombre de recettes reçues:', response.data.recipes.length);
+            console.log('📝 Recettes reçues:', response.data.recipes);
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response.data.recipes);
+          }
+          // Vérifier si c'est un objet avec une propriété data (tableau direct)
+          else if (response && response.data && Array.isArray(response.data)) {
+            console.log('📊 Format détecté: Objet avec propriété "data" (tableau)');
+            console.log('🍽️ Nombre de recettes reçues:', response.data.length);
+            console.log('📝 Recettes reçues:', response.data);
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response.data);
+          }
+          // Vérifier si c'est un objet avec une propriété results
+          else if (response && response.results && Array.isArray(response.results)) {
+            console.log('📊 Format détecté: Objet avec propriété "results"');
+            console.log('🍽️ Nombre de recettes reçues:', response.results.length);
+            console.log('📝 Recettes reçues:', response.results);
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response.results);
+          }
+          // Vérifier si c'est un objet avec une propriété items
+          else if (response && response.items && Array.isArray(response.items)) {
+            console.log('📊 Format détecté: Objet avec propriété "items"');
+            console.log('🍽️ Nombre de recettes reçues:', response.items.length);
+            console.log('📝 Recettes reçues:', response.items);
+            
+            // Traiter et formater les recettes du backend
+            setRecipes(response.items);
+          }
+          // Autres formats possibles
+          else if (response && typeof response === 'object') {
+            console.log('📊 Format détecté: Objet avec structure personnalisée');
+            console.log('🔍 Structure de l\'objet:', response);
+            
+            // Chercher des tableaux dans l'objet
+            const arrayKeys = Object.keys(response).filter(key => Array.isArray(response[key]));
+            if (arrayKeys.length > 0) {
+              console.log('📋 Tableaux trouvés dans la réponse:', arrayKeys);
+              const firstArray = response[arrayKeys[0]];
+              console.log(`🍽️ Utilisation du premier tableau (${arrayKeys[0]}):`, firstArray);
+              
+              // Traiter et formater les recettes du backend
+              setRecipes(firstArray);
+            } else {
+              console.warn('⚠️ Aucun tableau trouvé dans la réponse, utilisation du fallback local');
+              useFallbackRecipes();
+            }
+          }
+          // Réponse inattendue
+          else {
+            console.warn('⚠️ Format de réponse inattendu:', response);
+            console.warn('⚠️ Utilisation du fallback local');
+            useFallbackRecipes();
+          }
+          
+          console.log('--- FIN DÉTAILS DE LA RÉPONSE ---');
+        })
+        .catch(error => {
+          console.error('❌ Erreur lors de l\'appel au backend:', error);
+          console.error('🔍 Détails de l\'erreur:', {
+            message: error.message,
+            status: error.status,
+            statusText: error.statusText,
+            errorData: error.errorData,
+            stack: error.stack
+          });
+          
+          // Affichage détaillé selon le type d'erreur
+          if (error.status === 400) {
+            console.error('🚨 Erreur 400 - Bad Request:');
+            console.error('📤 Données envoyées au backend:', requestData);
+            console.error('📋 Format des données envoyées:', {
+              ingredients: Array.isArray(requestData.ingredients) ? `${requestData.ingredients.length} ingrédients` : 'Format invalide',
+              healthCriteria: Array.isArray(requestData.healthCriteria) ? `${requestData.healthCriteria.length} critères` : 'Format invalide',
+              allergies: Array.isArray(requestData.allergies) ? `${requestData.allergies.length} allergies` : 'Format invalide',
+              timestamp: typeof requestData.timestamp === 'string' ? 'Timestamp valide' : 'Format invalide',
+              userId: typeof requestData.userId === 'string' ? 'UserID valide' : 'Format invalide'
+            });
+            
+            if (error.errorData) {
+              console.error('📝 Détails de l\'erreur du backend:', error.errorData);
+            }
+            
+            console.error('💡 Suggestions:');
+            console.error('   - Vérifiez que le backend attend bien ce format de données');
+            console.error('   - Assurez-vous que tous les champs requis sont présents');
+            console.error('   - Vérifiez les types de données (tableaux, chaînes, etc.)');
+          } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.error('🌐 Erreur de connexion: Impossible de joindre le backend');
+            console.error('💡 Vérifiez que le serveur backend est démarré sur http://localhost:3000');
+          } else if (error.status === 401) {
+            console.error('🔐 Erreur d\'authentification: Token invalide ou expiré');
+          } else if (error.status === 403) {
+            console.error('🚫 Erreur d\'autorisation: Accès refusé');
+          } else if (error.status === 404) {
+            console.error('🔍 Erreur 404: Endpoint non trouvé');
+            console.error('💡 Vérifiez que l\'endpoint /api/recipes/generate existe sur le backend');
+          } else if (error.status >= 500) {
+            console.error('🔥 Erreur serveur: Problème côté backend');
+            console.error('💡 Vérifiez les logs du serveur backend');
+          }
+          
+          // Fallback vers le filtrage local en cas d'erreur
+          useFallbackRecipes();
+        })
+        .finally(() => {
+          console.log('🏁 Génération terminée');
+          setIsLoading(false);
+        });
+      }, 4000); // 4 secondes de délai
     }
   };
 
@@ -275,9 +662,11 @@ export default function UserDashboard() {
     setSearchFilters(filters);
   };
 
+  // Correction du filtrage pour attributs français
   const filtered = recipes.filter(
-    r => (selectedCat === "world" || r.category === selectedCat) &&
-      (r.name.toLowerCase().includes(search.toLowerCase()) || r.desc.toLowerCase().includes(search.toLowerCase()))
+    r => (selectedCat === "world" || r.origine === selectedCat) &&
+      ((r.titre && r.titre.toLowerCase().includes(search.toLowerCase())) ||
+       (r.description && r.description.toLowerCase().includes(search.toLowerCase())))
   );
 
   const tabs = [
@@ -336,7 +725,7 @@ export default function UserDashboard() {
                 className="text-gray-700 hover:text-sage-600 transition-colors font-medium flex items-center space-x-2"
               >
                 <span>📚</span>
-                <span>Historique</span>
+                <span>Mes recettes</span>
               </button>
               <button
                 onClick={handleLogout}
@@ -360,6 +749,11 @@ export default function UserDashboard() {
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
+        onAddToTimer={(recipe) => {
+          setTimerRecipe(recipe);
+          setIsHistoryModalOpen(false);
+          setActiveTab('timer');
+        }}
       />
 
       {/* Main Content */}
@@ -476,30 +870,47 @@ export default function UserDashboard() {
 
               {/* Recipes Grid */}
               {!isLoading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filtered.length ? (
-                    filtered.map((recipe, index) => (
-                      <RecipeCard
-                        key={recipe.name}
-                        recipe={recipe}
-                        index={index}
-                        onVoirRecette={() => {
-                          setSelectedRecipe(recipe);
-                          setIsRecipeModalOpen(true);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-12">
-                      <div className="text-6xl mb-4">🍽️</div>
-                      <p className="text-gray-600 text-lg">
-                        {mode === "ingredients"
-                          ? "Aucune recette trouvée avec ces critères. Essayez d'ajuster vos ingrédients ou critères de santé !"
-                          : "Aucune recette trouvée pour cette recherche ou catégorie."
-                        }
-                      </p>
+                <div>
+                  {/* Indicateur de source des recettes */}
+                  {recipes.length > 0 && recipes[0]?.source === 'backend' && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🤖</span>
+                        <div>
+                          <h3 className="font-semibold text-green-800">Recettes générées par l'IA</h3>
+                          <p className="text-green-600 text-sm">
+                            {recipes.length} recettes personnalisées basées sur vos ingrédients et critères
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {filtered.length ? (
+                      filtered.map((recipe, index) => (
+                        <RecipeCard
+                          key={recipe.id || recipe.name}
+                          recipe={recipe}
+                          index={index}
+                          onVoirRecette={() => {
+                            setSelectedRecipe(recipe);
+                            setIsRecipeModalOpen(true);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <div className="text-6xl mb-4">🍽️</div>
+                        <p className="text-gray-600 text-lg">
+                          {mode === "ingredients"
+                            ? "Aucune recette trouvée avec ces critères. Essayez d'ajuster vos ingrédients ou critères de santé !"
+                            : "Aucune recette trouvée pour cette recherche ou catégorie."
+                          }
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -549,7 +960,7 @@ export default function UserDashboard() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <CookingTimer recipe={generatedRecipe || recipes[0]} />
+              <CookingTimer recipe={timerRecipe || generatedRecipe || recipes[0]} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -563,10 +974,9 @@ export default function UserDashboard() {
         isOpen={isRecipeModalOpen}
         onClose={() => setIsRecipeModalOpen(false)}
         recipe={selectedRecipe}
-        onAccept={(recipe) => {
+        onAccept={() => {
           setIsRecipeModalOpen(false);
-          // Ici tu peux ajouter ta logique métier (ex: enregistrer la recette, changer d'état, etc)
-          alert(`Recette acceptée : ${recipe.name}`);
+          // Ne pas afficher de toast ici, il est déjà affiché dans RecipeModal.jsx
         }}
       />
 

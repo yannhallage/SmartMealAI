@@ -14,11 +14,22 @@ const IngredientSelector = ({
   handleAddCustomIngredient 
 }) => {
   const handleIngredientToggle = (ingredient) => {
-    setSelectedIngredients(prev => 
-      prev.includes(ingredient) 
+    setSelectedIngredients(prev => {
+      const isCurrentlySelected = prev.includes(ingredient);
+      const newSelection = isCurrentlySelected 
         ? prev.filter(i => i !== ingredient)
-        : [...prev, ingredient]
-    );
+        : [...prev, ingredient];
+      
+      // Afficher en console le changement
+      if (isCurrentlySelected) {
+        console.log(`❌ Ingrédient retiré: "${ingredient}"`);
+      } else {
+        console.log(`✅ Ingrédient ajouté: "${ingredient}"`);
+      }
+      console.log(`📋 Liste actuelle des ingrédients:`, newSelection);
+      
+      return newSelection;
+    });
   };
 
   return (

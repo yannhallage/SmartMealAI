@@ -15,75 +15,83 @@ const healthCriteria = [
 
 const RecipeCard = ({ recipe, index, onVoirRecette }) => {
   return (
-    <div
-      className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
-      style={{
-        animationDelay: `${index * 100}ms`,
-        animation: 'fadeInUp 0.6s ease-out forwards'
-      }}
-    >
-      <img 
-        src={recipe.img} 
-        alt={recipe.name} 
-        className="w-full h-48 object-cover rounded-md mb-4" 
-      />
+    <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105">
+      {recipe.imageUrl && (
+        <img 
+          src={recipe.imageUrl} 
+          alt={recipe.titre} 
+          className="w-full h-48 object-cover rounded-md mb-4" 
+        />
+      )}
       <div className="space-y-3">
-        <h3 className="font-semibold text-black text-lg">{recipe.name}</h3>
-        <p className="text-gray-600 text-sm">{recipe.desc}</p>
+        <h3 className="font-semibold text-black text-lg">{recipe.titre}</h3>
+        <p className="text-gray-600 text-sm">{recipe.description}</p>
+        <span className="inline-block bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mr-2 mb-2">
+          {recipe.origine}
+        </span>
+        <span className="inline-block bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mr-2 mb-2">
+          ⏱️ {recipe.tempsPreparation} min
+        </span>
         {/* Critères de santé */}
-        {recipe.health && recipe.health.length > 0 && (
+        {recipe.criteresSante && recipe.criteresSante.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {recipe.health.map((health) => {
-              const healthInfo = healthCriteria.find(h => h.key === health);
-              return healthInfo ? (
-                <span key={health} className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                  {healthInfo.emoji} {healthInfo.label}
-                </span>
-              ) : null;
-            })}
+            {recipe.criteresSante.map((critere) => (
+              <span key={critere} className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                {critere}
+              </span>
+            ))}
           </div>
         )}
         {/* Allergènes */}
-        {recipe.allergens && recipe.allergens.length > 0 && (
+        {recipe.allergenes && recipe.allergenes.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {recipe.allergens.map((allergen) => (
+            {recipe.allergenes.map((allergen) => (
               <span key={allergen} className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
                 ⚠️ {allergen}
               </span>
             ))}
           </div>
         )}
+        {/* Ingrédients principaux */}
+        {recipe.ingredientsPrincipaux && recipe.ingredientsPrincipaux.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {recipe.ingredientsPrincipaux.map((ingredient, idx) => (
+              <span key={idx} className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs">
+                {ingredient}
+              </span>
+            ))}
+          </div>
+        )}
         {/* Nutrition */}
-        {recipe.nutrition && (
+        {recipe.nutritionParPortion && (
           <div className="bg-gray-50 rounded-md p-2">
             <div className="text-xs text-gray-600 mb-1">Nutrition (par portion)</div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-4 gap-2 text-xs">
               <div>
-                <div className="font-medium">{recipe.nutrition.calories}</div>
+                <div className="font-medium">{recipe.nutritionParPortion.kcal}</div>
                 <div className="text-gray-500">kcal</div>
               </div>
               <div>
-                <div className="font-medium">{recipe.nutrition.protein}g</div>
+                <div className="font-medium">{recipe.nutritionParPortion.proteines}g</div>
                 <div className="text-gray-500">Protéines</div>
               </div>
               <div>
-                <div className="font-medium">{recipe.nutrition.carbs}g</div>
+                <div className="font-medium">{recipe.nutritionParPortion.glucides}g</div>
                 <div className="text-gray-500">Glucides</div>
+              </div>
+              <div>
+                <div className="font-medium">{recipe.nutritionParPortion.lipides}g</div>
+                <div className="text-gray-500">Lipides</div>
               </div>
             </div>
           </div>
         )}
-        <div className="flex items-center justify-between">
-          <span className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium">
-            {recipe.time}
-          </span>
-          <button 
-            onClick={onVoirRecette}
-            className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
-          >
-            Voir la recette
-          </button>
-        </div>
+        <button 
+          onClick={onVoirRecette}
+          className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+        >
+          Voir la recette
+        </button>
       </div>
     </div>
   );
