@@ -1,63 +1,27 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getHistory } from '../api/history';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { getUserId } from '../api/auth';
 
-const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
-  // Données d'exemple pour l'historique
-  const sampleHistory = [
-    {
-      id: 1,
-      name: "Pâtes Carbonara",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
-      description: "Un classique italien crémeux avec des lardons et du parmesan. Recette générée le 15/12/2024.",
-      date: "15/12/2024",
-      ingredients: ["Pâtes", "Œufs", "Fromage", "Lardons"],
-      time: "20 min",
-      category: "Européen"
-      
-    },
-    {
-      id: 2,
-      name: "Poulet Yassa",
-      image: "https://cdn.aistoucuisine.com/assets/1491161b-a00b-48ad-aa63-2cc8a9b9a92c/yassa-poulet.webp?format=webp&quality=75&width=1024",
-      description: "Spécialité sénégalaise acidulée avec du poulet mariné. Recette générée le 14/12/2024.",
-      date: "14/12/2024",
-      ingredients: ["Poulet", "Oignons", "Citron", "Huile"],
-      time: "50 min",
-      category: "Africain"
-    },
-    {
-      id: 3,
-      name: "Pad Thaï",
-      image: "https://images.unsplash.com/photo-1637806931098-af30b519be53?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      description: "Nouilles sautées thaïlandaises avec crevettes et cacahuètes. Recette générée le 13/12/2024.",
-      date: "13/12/2024",
-      ingredients: ["Nouilles de riz", "Crevettes", "Tofu", "Cacahuètes"],
-      time: "25 min",
-      category: "Asiatique"
-    },
-    {
-      id: 4,
-      name: "Falafel Bowl",
-      image: "https://images.unsplash.com/photo-1701688596783-231b3764ef67?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      description: "Boulettes veggie et houmous dans un bowl healthy. Recette générée le 12/12/2024.",
-      date: "12/12/2024",
-      ingredients: ["Pois chiches", "Persil", "Ail", "Houmous"],
-      time: "30 min",
-      category: "Oriental"
-    },
-    {
-      id: 5,
-      name: "Poké Bowl",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
-      description: "Fusion healthy du monde avec saumon et avocat. Recette générée le 11/12/2024.",
-      date: "11/12/2024",
-      ingredients: ["Riz", "Saumon", "Avocat", "Mangue"],
-      time: "18 min",
-      category: "Fusion"
+const HistoryModal = ({ isOpen, onClose, onAddToTimer }) => {
+  const [history, setHistory] = useState([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    let userId = user?.id;
+    if (!userId) {
+      userId = getUserId();
     }
-  ];
+    if (isOpen && userId) {
+      getHistory(userId)
+        .then(res => setHistory(res.data))
+        .catch(err => console.error('Erreur chargement historique', err));
+    }
+  }, [isOpen, user]);
 
-  const history = historyData.length > 0 ? historyData : sampleHistory;
+  const defaultImage = '/src/assets/react.svg';
 
   return (
     <AnimatePresence>
@@ -120,8 +84,8 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                         {/* Image */}
                         <div className="flex-shrink-0">
                           <img
-                            src={recipe.image}
-                            alt={recipe.name}
+                            src={recipe.image || recipe.imageUrl || defaultImage}
+                            alt={recipe.name || recipe.titre}
                             className="w-32 h-32 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
                           />
                         </div>
@@ -131,7 +95,7 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                           <div className="flex items-start justify-between">
                             <div>
                               <h3 className="text-xl font-semibold text-gray-900 group-hover:text-coral-600 transition-colors">
-                                {recipe.name}
+                                {recipe.titre || recipe.name}
                               </h3>
                               <p className="text-sm text-gray-500 mt-1">
                                 {recipe.category} • {recipe.time} • {recipe.date}
@@ -159,17 +123,17 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                           <div>
                             <h4 className="text-sm font-medium text-gray-900 mb-2">Ingrédients principaux :</h4>
                             <div className="flex flex-wrap gap-2">
-                              {recipe.ingredientsPrincipaux.slice(0, 4).map((ingredient, idx) => (
+                              {(recipe.ingredientsPrincipaux || recipe.ingredients || []).slice(0, 4).map((ingredient, idx) => (
                                 <span
-                                  key={idx}
+                                  key={ingredient + idx}
                                   className="bg-white px-3 py-1 rounded-full text-xs text-gray-700 border border-gray-200"
                                 >
                                   {ingredient}
                                 </span>
                               ))}
-                              {recipe.ingredientsPrincipaux.length > 4 && (
+                              {(recipe.ingredientsPrincipaux || recipe.ingredients || []).length > 4 && (
                                 <span className="bg-white px-3 py-1 rounded-full text-xs text-gray-500 border border-gray-200">
-                                  +{recipe.ingredientsPrincipaux.length - 4} autres
+                                  +{(recipe.ingredientsPrincipaux || recipe.ingredients || []).length - 4} autres
                                 </span>
                               )}
                             </div>
@@ -179,6 +143,11 @@ const HistoryModal = ({ isOpen, onClose, historyData = [] }) => {
                           <div className="flex space-x-3 pt-2">
                             <button className="bg-gradient-to-r from-coral-400 to-peach-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-coral-500 hover:to-peach-500 transition-all duration-200">
                               Voir la recette complète
+                            </button>
+                            <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                              onClick={() => onAddToTimer && onAddToTimer(recipe)}
+                            >
+                              Ajouter au minuteur
                             </button>
                             <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                               Régénérer

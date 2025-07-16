@@ -18,6 +18,8 @@ import SmartSearch from "../components/SmartSearch";
 import CookingTimer from "../components/CookingTimer";
 import { AnimatePresence } from "framer-motion";
 import RecipeModal from "../components/RecipeModal";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -190,6 +192,7 @@ export default function UserDashboard() {
   const [searchFilters, setSearchFilters] = useState({});
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [timerRecipe, setTimerRecipe] = useState(null);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
@@ -383,7 +386,7 @@ export default function UserDashboard() {
           console.log(`   ${key}:`, value);
         }
         
-        alert('Veuillez vous reconnecter pour générer des recettes.');
+        toast.error('Veuillez vous reconnecter pour générer des recettes.');
         return;
       }
 
@@ -725,12 +728,6 @@ export default function UserDashboard() {
                 <span>Mes recettes</span>
               </button>
               <button
-                onClick={testAuthState}
-                className="text-gray-700 hover:text-sage-600 transition-colors font-medium mr-4"
-              >
-                🔍 Test Auth
-              </button>
-              <button
                 onClick={handleLogout}
                 className="text-gray-700 hover:text-sage-600 transition-colors font-medium"
               >
@@ -752,6 +749,11 @@ export default function UserDashboard() {
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
+        onAddToTimer={(recipe) => {
+          setTimerRecipe(recipe);
+          setIsHistoryModalOpen(false);
+          setActiveTab('timer');
+        }}
       />
 
       {/* Main Content */}
@@ -958,7 +960,7 @@ export default function UserDashboard() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <CookingTimer recipe={generatedRecipe || recipes[0]} />
+              <CookingTimer recipe={timerRecipe || generatedRecipe || recipes[0]} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -972,10 +974,9 @@ export default function UserDashboard() {
         isOpen={isRecipeModalOpen}
         onClose={() => setIsRecipeModalOpen(false)}
         recipe={selectedRecipe}
-        onAccept={(recipe) => {
+        onAccept={() => {
           setIsRecipeModalOpen(false);
-          // Ici tu peux ajouter ta logique métier (ex: enregistrer la recette, changer d'état, etc)
-          alert(`Recette acceptée : ${recipe.name}`);
+          // Ne pas afficher de toast ici, il est déjà affiché dans RecipeModal.jsx
         }}
       />
 
