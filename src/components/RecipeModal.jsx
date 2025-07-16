@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { addRecipeToHistory } from '../api/history';
 
 const healthCriteria = [
   { key: "vegetarian", label: "Végétarien", emoji: "🥬" },
@@ -34,6 +35,16 @@ const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
   if (recipe) {
     console.log('🔍 RecipeModal:', recipe);
   }
+
+  const handleAccept = async () => {
+    try {
+      await addRecipeToHistory(recipe);
+      if (onAccept) onAccept(recipe);
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout à l\'historique', error);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -194,7 +205,7 @@ const RecipeModal = ({ isOpen, onClose, recipe, onAccept }) => {
                 <div className="flex items-center gap-3">
                   <button
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                    onClick={() => onAccept && onAccept(recipe)}
+                    onClick={handleAccept}
                   >
                     Accepter cette recette
                   </button>

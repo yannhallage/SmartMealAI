@@ -725,12 +725,6 @@ export default function UserDashboard() {
                 <span>Mes recettes</span>
               </button>
               <button
-                onClick={testAuthState}
-                className="text-gray-700 hover:text-sage-600 transition-colors font-medium mr-4"
-              >
-                🔍 Test Auth
-              </button>
-              <button
                 onClick={handleLogout}
                 className="text-gray-700 hover:text-sage-600 transition-colors font-medium"
               >
