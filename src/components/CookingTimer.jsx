@@ -21,12 +21,14 @@ const CookingTimer = ({ recipe }) => {
 
   const createTimerSteps = (recipe) => {
     const steps = [];
-    
-    if (recipe.instructions) {
-      recipe.instructions.forEach((instruction, index) => {
+    let instructions = recipe.instructions;
+    if (typeof instructions === 'string') {
+      instructions = instructions.split('\n').filter(line => line.trim() !== '');
+    }
+    if (Array.isArray(instructions)) {
+      instructions.forEach((instruction, index) => {
         // Estimer le temps basé sur le contenu de l'instruction
         let duration = 120; // 2 minutes par défaut
-        
         if (instruction.toLowerCase().includes('cuire') || instruction.toLowerCase().includes('faire cuire')) {
           duration = 300; // 5 minutes
         } else if (instruction.toLowerCase().includes('mijoter') || instruction.toLowerCase().includes('simmer')) {
@@ -36,7 +38,6 @@ const CookingTimer = ({ recipe }) => {
         } else if (instruction.toLowerCase().includes('couper') || instruction.toLowerCase().includes('hacher')) {
           duration = 60; // 1 minute
         }
-        
         steps.push({
           id: index,
           title: `Étape ${index + 1}`,
@@ -46,7 +47,6 @@ const CookingTimer = ({ recipe }) => {
         });
       });
     }
-    
     return steps;
   };
 
@@ -151,11 +151,13 @@ const CookingTimer = ({ recipe }) => {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900">⏱️ Minuteur de Cuisine</h3>
-        <span className="bg-gradient-to-r from-coral-400 to-peach-400 text-white px-3 py-1 rounded-full text-sm font-medium">
-          {recipe?.name || "Recette"}
-        </span>
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          ⏱️ Minuteur de Cuisine
+        </h3>
+        <div className="mt-2 text-lg float-right font-semibold text-coral-600">
+          {recipe?.titre || recipe?.name || <span className="text-gray-400 italic">Titre non disponible</span>}
+        </div>
       </div>
 
       {/* Timer principal */}

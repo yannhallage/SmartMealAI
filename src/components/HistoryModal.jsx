@@ -2,17 +2,26 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHistory } from '../api/history';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { getUserId } from '../api/auth';
 
-const HistoryModal = ({ isOpen, onClose }) => {
+const HistoryModal = ({ isOpen, onClose, onAddToTimer }) => {
   const [history, setHistory] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (isOpen) {
-      getHistory()
+    let userId = user?.id;
+    if (!userId) {
+      userId = getUserId();
+    }
+    if (isOpen && userId) {
+      getHistory(userId)
         .then(res => setHistory(res.data))
         .catch(err => console.error('Erreur chargement historique', err));
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
+
+  const defaultImage = '/src/assets/react.svg';
 
   return (
     <AnimatePresence>
@@ -75,8 +84,8 @@ const HistoryModal = ({ isOpen, onClose }) => {
                         {/* Image */}
                         <div className="flex-shrink-0">
                           <img
-                            src={recipe.image}
-                            alt={recipe.name}
+                            src={recipe.image || recipe.imageUrl || defaultImage}
+                            alt={recipe.name || recipe.titre}
                             className="w-32 h-32 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
                           />
                         </div>
@@ -86,7 +95,7 @@ const HistoryModal = ({ isOpen, onClose }) => {
                           <div className="flex items-start justify-between">
                             <div>
                               <h3 className="text-xl font-semibold text-gray-900 group-hover:text-coral-600 transition-colors">
-                                {recipe.name}
+                                {recipe.titre || recipe.name}
                               </h3>
                               <p className="text-sm text-gray-500 mt-1">
                                 {recipe.category} • {recipe.time} • {recipe.date}
@@ -134,6 +143,11 @@ const HistoryModal = ({ isOpen, onClose }) => {
                           <div className="flex space-x-3 pt-2">
                             <button className="bg-gradient-to-r from-coral-400 to-peach-400 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-coral-500 hover:to-peach-500 transition-all duration-200">
                               Voir la recette complète
+                            </button>
+                            <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                              onClick={() => onAddToTimer && onAddToTimer(recipe)}
+                            >
+                              Ajouter au minuteur
                             </button>
                             <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                               Régénérer
